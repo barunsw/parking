@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyundai_mnsoft.vpp.tcp.dao.MsgDao">
+	<select id="getMsgHeaderInfo" resultType="com.hyundai_mnsoft.vpp.vo.MsgHeaderVo">
+		SELECT
+			   MSG_ID as 'msgId',
+			   SERVICE_ID as 'serviceId',
+			   FIELD_NAME as 'fieldName',
+			   SEQ as 'seq',
+			   COL_TYPE as 'colType',
+			   COL_LENGTH as 'colLength',
+			   COL_REQ_TYPE as 'colReqType'
+		FROM
+			   tb_msg_info
+		WHERE
+				MSG_ID = '1678'
+		ORDER BY SEQ
+
+	</select>
+</mapper>
