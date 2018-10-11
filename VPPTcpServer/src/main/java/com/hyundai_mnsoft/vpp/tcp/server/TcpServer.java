@@ -1,6 +1,5 @@
 package com.hyundai_mnsoft.vpp.tcp.server;
 
-import com.hyundai_mnsoft.vpp.impl.TcpServerImpl;
 import com.hyundai_mnsoft.vpp.rmi.TcpServerInterface;
 import com.hyundai_mnsoft.vpp.vo.MsgHeaderVo;
 import org.slf4j.Logger;
@@ -9,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
@@ -108,6 +108,20 @@ class ConnectionWrap implements Runnable {
 
     public void run() {
         try{
+            //Process Message
+
+            // some codes here...
+
+
+
+            //Response Message
+
+            // some codes here...
+
+
+
+
+            //분할 예정
             OutputStream os = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(os);
 
@@ -132,15 +146,15 @@ class ConnectionWrap implements Runnable {
 
                     startPos += msgHeaderVo.getColLength();
 
-                    String str = new String(colValue, "UTF-8");
+                    String str = new String(colValue, StandardCharsets.UTF_8);
 
                     LOGGER.debug("{} | {}", msgHeaderVo.getFieldName(), str);
                 }
 
                 LOGGER.debug("End of Parse.");
 
-                LOGGER.debug("RMI Test");
-                LOGGER.debug(RmiControl.getParkingLotInfo("ABCD01").toString());
+//                LOGGER.debug("RMI Test");
+//                LOGGER.debug(RmiControl.getParkingLotInfo("ABCD01").toString());
 
                 dos.write(headerBuffer);
                 dos.flush();
