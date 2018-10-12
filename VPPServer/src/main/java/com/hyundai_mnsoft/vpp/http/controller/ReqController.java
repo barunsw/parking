@@ -2,7 +2,10 @@ package com.hyundai_mnsoft.vpp.http.controller;
 
 import com.google.gson.Gson;
 import com.hyundai_mnsoft.vpp.biz.http.service.ReqService;
-import com.hyundai_mnsoft.vpp.vo.*;
+import com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo;
+import com.hyundai_mnsoft.vpp.vo.ParkingLotResVo;
+import com.hyundai_mnsoft.vpp.vo.RequestVo;
+import com.hyundai_mnsoft.vpp.vo.ResponseVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +49,13 @@ public class ReqController {
 
     @RequestMapping(value = "/vpp101", method = RequestMethod.POST)
     public @ResponseBody
-    ParkingLotInfoVo parkinglots(@RequestHeader HttpHeaders headers,
-                                  @RequestBody(required = false) Object requestBody,
-                                  HttpServletResponse res) {
+    ParkingLotResVo parkinglots(@RequestHeader HttpHeaders headers,
+                                @RequestBody(required = false) Object requestBody,
+                                HttpServletResponse res) {
 
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
-        ParkingLotInfoVo parkingLotInfoVo = null;
+        ParkingLotResVo parkingLotResVo = null;
         try {
             requestVo = processHeader(headers);
 
@@ -63,9 +66,9 @@ public class ReqController {
 
             LOGGER.debug(requestInfo.toString());
 
-            parkingLotInfoVo = reqService.getParkingLotInfo(requestInfo);
+            parkingLotResVo = reqService.getParkingLotInfo(requestInfo);
 
-            LOGGER.debug(parkingLotInfoVo.toString());
+            LOGGER.debug(parkingLotResVo.toString());
 
             res.setHeader("errCode", "0");
             res.setHeader("errDesc", "Success");
@@ -76,11 +79,11 @@ public class ReqController {
             res.setHeader("errDesc", "Fail - 작업 중 오류.");
         }
         finally {
-            res.setHeader("MsgId", "parkinglots");
+            res.setHeader("MsgId", "VPP-101");
             res.setHeader("NadId", requestVo.getNadId());
         }
 
-        return parkingLotInfoVo;
+        return parkingLotResVo;
     }
 
     /*

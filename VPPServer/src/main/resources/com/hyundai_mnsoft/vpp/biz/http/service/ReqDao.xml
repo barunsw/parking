@@ -3,7 +3,7 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.ReqDao">
-	<select id="getParkingLotInfo" resultType="com.hyundai_mnsoft.vpp.vo.ParkingLotInfoVo"
+	<select id="getParkingLotInfo" resultType="com.hyundai_mnsoft.vpp.vo.ParkingLotResVo"
 			parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo">
 		SELECT
 			   pl_id as 'parkingLotID',
@@ -29,6 +29,6 @@
 		FROM
 			 tbl_parkingLotUseInfo
 		WHERE
-				parkinglot_no = #{parkingAreaId}
+				parkinglot_no = #{parkingAreaID}
 	</select>
 </mapper>

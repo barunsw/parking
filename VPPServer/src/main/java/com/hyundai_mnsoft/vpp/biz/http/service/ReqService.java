@@ -1,8 +1,8 @@
 package com.hyundai_mnsoft.vpp.biz.http.service;
 
-import com.hyundai_mnsoft.vpp.vo.ParkingLotInfoVo;
 import com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo;
+import com.hyundai_mnsoft.vpp.vo.ParkingLotResVo;
 
 public interface ReqService {
-    ParkingLotInfoVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo);
+    ParkingLotResVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo);
 }

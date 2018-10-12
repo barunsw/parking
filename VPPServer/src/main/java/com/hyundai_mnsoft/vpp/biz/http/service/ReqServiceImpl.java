@@ -1,8 +1,8 @@
 package com.hyundai_mnsoft.vpp.biz.http.service;
 
 import com.hyundai_mnsoft.vpp.vo.LaneInfoVo;
-import com.hyundai_mnsoft.vpp.vo.ParkingLotInfoVo;
 import com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo;
+import com.hyundai_mnsoft.vpp.vo.ParkingLotResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +18,15 @@ public class ReqServiceImpl implements ReqService {
         this.reqDao = reqDao;
     }
 
-    public ParkingLotInfoVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo) {
-        ParkingLotInfoVo parkingLotInfoVo = reqDao.getParkingLotInfo(parkingLotReqVo);
+    public ParkingLotResVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo) {
+        ParkingLotResVo parkingLotResVo = reqDao.getParkingLotInfo(parkingLotReqVo);
         List<LaneInfoVo> laneInfoVoList = reqDao.getParkingLotUseInfoList(parkingLotReqVo);
 
-        parkingLotInfoVo.setLaneInfoList(laneInfoVoList);
-        parkingLotInfoVo.setTotalListCnt(String.valueOf(laneInfoVoList.size()));
+        parkingLotResVo.setParkingLotNo(parkingLotReqVo.getParkingAreaID());
+        parkingLotResVo.setLaneInfoList(laneInfoVoList);
+        parkingLotResVo.setTotalListCnt(String.valueOf(laneInfoVoList.size()));
         
-        return parkingLotInfoVo;
+        return parkingLotResVo;
     }
 
 
