@@ -13,10 +13,9 @@
 			   COL_LENGTH as 'colLength',
 			   COL_REQ_TYPE as 'colReqType'
 		FROM
-			   tb_msg_info
+			   tbl_msg_info
 		WHERE
-				MSG_ID = '1678'
+				MSG_ID = '0'
 		ORDER BY SEQ
-
 	</select>
 </mapper>

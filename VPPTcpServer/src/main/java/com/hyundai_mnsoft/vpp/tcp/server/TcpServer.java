@@ -30,7 +30,7 @@ public class TcpServer {
             loadProperties();
             port = Integer.parseInt(props.getProperty("tcp.port"));
 
-            initRmi();
+//            initRmi();
 
             LOGGER.debug(">> Tcp Server Running...");
 
@@ -112,6 +112,7 @@ class ConnectionWrap implements Runnable {
 
             // some codes here...
 
+            msgService.processMsg(socket);
 
 
             //Response Message
@@ -129,7 +130,7 @@ class ConnectionWrap implements Runnable {
             DataInputStream dis = new DataInputStream(is);
 
             try {
-                byte[] headerBuffer = new byte[84];
+                byte[] headerBuffer = new byte[8];
 
                 dis.read(headerBuffer);
 
