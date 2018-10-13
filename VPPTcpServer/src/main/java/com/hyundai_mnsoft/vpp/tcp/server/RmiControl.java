@@ -1,7 +1,8 @@
 package com.hyundai_mnsoft.vpp.tcp.server;
 
 import com.hyundai_mnsoft.vpp.rmi.DBServiceInterface;
-import com.hyundai_mnsoft.vpp.vo.ParkingLotInfoVo;
+import com.hyundai_mnsoft.vpp.vo.TcpParkingLotReqVo;
+import com.hyundai_mnsoft.vpp.vo.TcpParkingLotResVo;
 import org.apache.log4j.Logger;
 
 import java.rmi.registry.LocateRegistry;
@@ -30,8 +31,8 @@ public class RmiControl {
 		}
 	}
 
-	public static ParkingLotInfoVo getParkingLotInfo(String areaId) throws Exception {
-		return serverIf.getParkingLotInfo(areaId);
+	public static TcpParkingLotResVo getParkingLotInfo(TcpParkingLotReqVo tcpParkingLotReqVo) throws Exception {
+		return serverIf.getParkingLotInfo(tcpParkingLotReqVo);
 	}
 
 }

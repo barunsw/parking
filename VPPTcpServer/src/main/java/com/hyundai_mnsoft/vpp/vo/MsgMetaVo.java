@@ -4,9 +4,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-public class MsgHeaderVo implements Serializable {
+public class MsgMetaVo implements Serializable {
     private int msgId;
-    private int serviceId;
     private String fieldName;
     private int seq;
     private String colType;
@@ -19,14 +18,6 @@ public class MsgHeaderVo implements Serializable {
 
     public void setMsgId(int msgId) {
         this.msgId = msgId;
-    }
-
-    public int getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(int serviceId) {
-        this.serviceId = serviceId;
     }
 
     public String getFieldName() {

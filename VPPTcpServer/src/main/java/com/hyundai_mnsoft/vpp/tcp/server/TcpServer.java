@@ -1,17 +1,15 @@
 package com.hyundai_mnsoft.vpp.tcp.server;
 
 import com.hyundai_mnsoft.vpp.rmi.TcpServerInterface;
-import com.hyundai_mnsoft.vpp.vo.MsgHeaderVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,63 +112,7 @@ class ConnectionWrap implements Runnable {
 
             msgService.processMsg(socket);
 
-
-            //Response Message
-
-            // some codes here...
-
-
-
-
-            //분할 예정
-            OutputStream os = socket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-
-            InputStream is = socket.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
-
-            try {
-                byte[] headerBuffer = new byte[8];
-
-                dis.read(headerBuffer);
-
-                // 헤더 정보 열람
-                List<MsgHeaderVo> msgHeaderInfo = msgService.getMsgHeaderInfo();
-
-                int startPos = 0;
-                int destPos = 0;
-
-                for ( MsgHeaderVo msgHeaderVo : msgHeaderInfo ) {
-                    byte[] colValue = new byte[msgHeaderVo.getColLength()];
-
-                    System.arraycopy(headerBuffer, startPos, colValue, destPos, msgHeaderVo.getColLength());
-
-                    startPos += msgHeaderVo.getColLength();
-
-                    String str = new String(colValue, StandardCharsets.UTF_8);
-
-                    LOGGER.debug("{} | {}", msgHeaderVo.getFieldName(), str);
-                }
-
-                LOGGER.debug("End of Parse.");
-
-//                LOGGER.debug("RMI Test");
-//                LOGGER.debug(RmiControl.getParkingLotInfo("ABCD01").toString());
-
-                dos.write(headerBuffer);
-                dos.flush();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            finally {
-                socket.close();
-
-                os.close();
-                dos.close();
-                is.close();
-                dis.close();
-            }
+            socket.close();
         }
         catch(Exception e){
             e.printStackTrace();
