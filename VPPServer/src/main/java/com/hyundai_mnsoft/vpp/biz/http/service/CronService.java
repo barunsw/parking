@@ -1,6 +1,7 @@
 package com.hyundai_mnsoft.vpp.biz.http.service;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -10,10 +11,13 @@ import org.springframework.stereotype.Service;
 public class CronService {
     private static Logger LOGGER = Logger.getLogger(CronService.class);
 
+    @Autowired
+    ControlServerService controlServerService;
+
     private final long WORK_INTERVAL = 60000;
 
     @Scheduled(fixedRate = WORK_INTERVAL) // 1분마다 실행
     public void getData() {
-        LOGGER.info("@@ Hello @@");
+//        controlServerService.reloadLaneInfoStatus();
     }
 }

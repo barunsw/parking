@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 public class ParkingLotUseInfoVo implements Serializable {
-    private String land_code;
+    private String lane_code;
     private String parkinglot_no;
     private String parking_level_code;
     private String parking_zone_code;
@@ -19,15 +19,17 @@ public class ParkingLotUseInfoVo implements Serializable {
     private String car_indate;
     private String car_file;
     private String car_server_file;
+    private String section_id;
+    private String slot_id;
     private String updateDate;
     private String insertDate;
 
-    public String getLand_code() {
-        return land_code;
+    public String getLane_code() {
+        return lane_code;
     }
 
-    public void setLand_code(String land_code) {
-        this.land_code = land_code;
+    public void setLane_code(String lane_code) {
+        this.lane_code = lane_code;
     }
 
     public String getParkinglot_no() {
@@ -136,6 +138,22 @@ public class ParkingLotUseInfoVo implements Serializable {
 
     public String getUpdateDate() {
         return updateDate;
+    }
+
+    public String getSection_id() {
+        return section_id;
+    }
+
+    public void setSection_id(String section_id) {
+        this.section_id = section_id;
+    }
+
+    public String getSlot_id() {
+        return slot_id;
+    }
+
+    public void setSlot_id(String slot_id) {
+        this.slot_id = slot_id;
     }
 
     public void setUpdateDate(String updateDate) {

@@ -14,6 +14,9 @@ public class ReqServiceImpl implements ReqService {
     private final ReqDao reqDao;
 
     @Autowired
+    ControlServerService controlServerService;
+
+    @Autowired
     public ReqServiceImpl(ReqDao reqDao) {
         this.reqDao = reqDao;
     }
@@ -25,7 +28,9 @@ public class ReqServiceImpl implements ReqService {
         parkingLotResVo.setParkingLotNo(parkingLotReqVo.getParkingAreaID());
         parkingLotResVo.setLaneInfoList(laneInfoVoList);
         parkingLotResVo.setTotalListCnt(String.valueOf(laneInfoVoList.size()));
-        
+
+        controlServerService.reloadLaneInfoStatus();
+
         return parkingLotResVo;
     }
 

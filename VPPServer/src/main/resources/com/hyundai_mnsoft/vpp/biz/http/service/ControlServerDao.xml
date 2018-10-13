@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.ControlServerDao">
+
+	<select id="getParkingLotUseInfoCount" resultType="java.lang.Integer"
+			parameterType="java.lang.String">
+		SELECT
+			   COUNT(*)
+		FROM
+			 tbl_parkinglotuseinfo
+		WHERE
+				lane_code = #{land_code}
+	</select>
+
+	<insert id="insertParkingLotUseInfo" parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseInfoVo">
+		INSERT INTO tbl_parkinglotuseinfo (lane_code,
+										   parkinglot_no,
+										   parking_level_code,
+										   parking_zone_code,
+										   lane_seq_num,
+										   lane_name,
+										   lane_type,
+										   manage_type,
+										   lane_status,
+										   car_status,
+										   car_no,
+										   car_indate,
+										   car_file,
+										   car_server_file,
+										   section_id,
+										   slot_id,
+										   updateDate,
+										   insertDate)
+		VALUES (#{lane_code},
+				#{parkinglot_no},
+				#{parking_level_code},
+				#{parking_zone_code},
+				#{lane_seq_num},
+				#{lane_name},
+				#{lane_type},
+				#{manage_type},
+				#{lane_status},
+				#{car_status},
+				#{car_no},
+				#{car_indate},
+				#{car_file},
+				#{car_server_file},
+				#{section_id},
+				#{slot_id},
+				NOW(),
+				NOW())
+	</insert>
+
+	<update id="updateParkingLotUseInfo" parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseInfoVo">
+		UPDATE tbl_parkinglotuseinfo
+		SET
+			parkinglot_no =  #{parkinglot_no},
+			parking_level_code =  #{parking_level_code},
+			parking_zone_code =  #{parking_zone_code},
+			lane_seq_num =  #{lane_seq_num},
+			lane_name =  #{lane_name},
+			lane_type =  #{lane_type},
+			manage_type =  #{manage_type},
+			lane_status =  #{lane_status},
+			car_status =  #{car_status},
+			car_no =  #{car_no},
+			car_indate =  #{car_indate},
+			car_file =  #{car_file},
+			car_server_file = #{car_server_file},
+			section_id = #{section_id},
+			slot_id = #{slot_id},
+			updateDate = NOW()
+		WHERE
+			lane_code = #{lane_code}
+	</update>
+	
+</mapper>
