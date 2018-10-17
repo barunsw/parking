@@ -8,21 +8,23 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
-public class CarSimulator {
-    private static Logger LOGGER = Logger.getLogger(CarSimulator.class);
+public class VehicleSimulator {
+    private static Logger LOGGER = Logger.getLogger(VehicleSimulator.class);
 
     public static Properties props = new Properties();
 
     public static void main(String[] args) {
         try {
             loadProperties();
-            int port = Integer.parseInt(props.getProperty("car.port"));
+            int port = Integer.parseInt(props.getProperty("vehicle.port"));
 
             LOGGER.debug(">> Car Sim Running...");
 
             ServerSocket serverSocket = new ServerSocket(port);
 
             LOGGER.debug(">> Port : " + port);
+
+            SimMsgService simMsgService = new SimMsgService();
 
             try {
                 while(true) {
@@ -33,13 +35,9 @@ public class CarSimulator {
 
                     try{
                        // 차량의 로직
+                        simMsgService.processMsg(socket);
 
-
-
-
-
-
-
+                        socket.close();
                     }
                     catch(Exception e){
                         e.printStackTrace();

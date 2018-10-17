@@ -10,6 +10,7 @@ public class TcpLaneInfoVo implements Serializable {
     private String parkingLevelCode;
     private String parkingZoneCode;
     private String laneSeqNum;
+    private int laneNameLen;
     private String laneName;
     private String laneType;
     private String manageType;
@@ -56,6 +57,14 @@ public class TcpLaneInfoVo implements Serializable {
 
     public void setLaneSeqNum(String laneSeqNum) {
         this.laneSeqNum = laneSeqNum;
+    }
+
+    public int getLaneNameLen() {
+        return laneNameLen;
+    }
+
+    public void setLaneNameLen(int laneNameLen) {
+        this.laneNameLen = laneNameLen;
     }
 
     public String getLaneName() {

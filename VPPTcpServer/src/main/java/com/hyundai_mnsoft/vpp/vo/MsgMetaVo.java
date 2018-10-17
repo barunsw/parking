@@ -11,6 +11,7 @@ public class MsgMetaVo implements Serializable {
     private String colType;
     private int colLength;
     private String colReqType;
+    private String colWorkType;
 
     public int getMsgId() {
         return msgId;
@@ -58,6 +59,14 @@ public class MsgMetaVo implements Serializable {
 
     public void setColReqType(String colReqType) {
         this.colReqType = colReqType;
+    }
+
+    public String getColWorkType() {
+        return colWorkType;
+    }
+
+    public void setColWorkType(String colWorkType) {
+        this.colWorkType = colWorkType;
     }
 
     @Override

@@ -10,7 +10,8 @@
 			   seq,
 			   colType,
 			   colLength,
-			   colReqType
+			   colReqType,
+			   colWorkType
 		FROM
 			 tbl_msg_info
 		WHERE
@@ -19,4 +20,138 @@
 				msgType = #{msgType}
 		ORDER BY SEQ
 	</select>
+
+	<select id="getCarLocationInfoCount" resultType="java.lang.Integer"
+			parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+		SELECT
+			   COUNT(*)
+		FROM
+			 tbl_vehicletraceinfo
+		WHERE
+				ServiceId = #{ServiceId}
+		  AND
+				Version = #{Version}
+		  AND
+				VIN = #{VIN}
+		  AND
+				NadId = #{NadId}
+	</select>
+
+	<insert id="insertCarLocationInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+		INSERT INTO tbl_vehicletraceinfo (
+										  ServiceId,
+										  Version,
+										  VIN,
+										  NadId,
+										  gatherStartDate,
+										  gatherStartTime,
+										  lon,
+										  lat,
+										  heading,
+										  objStatic,
+										  objDynamic,
+										  updateDate,
+										  insertDate
+				)
+		VALUES (
+					   #{ServiceId},
+					   #{Version},
+					   #{VIN},
+					   #{NadId},
+					   #{gatherStartDate},
+					   #{gatherStartTime},
+					   #{lon},
+					   #{lat},
+					   #{heading},
+					   #{objStatic},
+					   #{objDynamic},
+					   NOW(),
+					   NOW())
+	</insert>
+
+	<update id="updateCarLocationInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+		UPDATE tbl_vehicletraceinfo
+		SET
+			gatherStartDate = #{gatherStartDate},
+			gatherStartTime = #{gatherStartTime},
+			lon = #{lon},
+			lat = #{lat},
+			heading = #{heading},
+			objStatic = #{objStatic},
+			objDynamic = #{objDynamic},
+			updateDate = NOW()
+		WHERE
+				ServiceId = #{ServiceId}
+		  AND
+				Version = #{Version}
+		  AND
+				VIN = #{VIN}
+		  AND
+				NadId = #{NadId}
+	</update>
+
+	<select id="getCarStatusInfoCount" resultType="java.lang.Integer"
+			parameterType="com.hyundai_mnsoft.vpp.vo.VehicleStatusInfoVo">
+		SELECT
+			   COUNT(*)
+		FROM
+			 tbl_vehiclestatusinfo
+		WHERE
+				ServiceId = #{ServiceId}
+		  AND
+				Version = #{Version}
+		  AND
+				VIN = #{VIN}
+		  AND
+				NadId = #{NadId}
+	</select>
+
+	<insert id="insertCarStatusInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+		INSERT INTO tbl_vehiclestatusinfo (
+				ServiceId,
+				Version,
+				VIN,
+				NadId,
+				drivingStatus,
+				doorOpen,
+				engineStatus,
+				transmission,
+				velocity,
+				routeLine,
+				updateDate,
+				insertDate
+				)
+		VALUES (
+					   #{ServiceId},
+					   #{Version},
+					   #{VIN},
+					   #{NadId},
+					   #{drivingStatus},
+					   #{doorOpen},
+					   #{engineStatus},
+					   #{transmission},
+					   #{velocity},
+						0,  <!-- 임시값 -->
+					   NOW(),
+					   NOW())
+	</insert>
+
+	<update id="updateCarStatusInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+		UPDATE tbl_vehiclestatusinfo
+		SET
+			drivingStatus = #{drivingStatus},
+			doorOpen = #{doorOpen},
+			engineStatus = #{engineStatus},
+			transmission = #{transmission},
+			velocity = #{velocity},
+			updateDate = NOW()
+		WHERE
+				ServiceId = #{ServiceId}
+		  AND
+				Version = #{Version}
+		  AND
+				VIN = #{VIN}
+		  AND
+				NadId = #{NadId}
+	</update>
 </mapper>

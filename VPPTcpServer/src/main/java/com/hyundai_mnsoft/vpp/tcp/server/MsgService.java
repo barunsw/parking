@@ -1,10 +1,8 @@
 package com.hyundai_mnsoft.vpp.tcp.server;
 
 import com.hyundai_mnsoft.vpp.tcp.dao.MsgDao;
-import com.hyundai_mnsoft.vpp.vo.MsgMetaSearchVo;
-import com.hyundai_mnsoft.vpp.vo.MsgMetaVo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hyundai_mnsoft.vpp.vo.*;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -15,18 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MsgService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TcpServer.class);
+public class MsgService extends CommonUtil{
+    private static Logger LOGGER = Logger.getLogger(MsgService.class);
 
-//    public List<MsgMetaVo> getMsgMetaInfo() {
-//        return MsgDao.getMsgMetaInfo();
-//    }
+    private static final int VPP_001 = 16781312;
+    private static final int VPP_002 = 16781313;
+    private static final int VPP_003 = 16781314;
 
     // 메시지 수신시 사용.
     public int processMsg(Socket socket) {
-
         Map headerMap = new HashMap<>();
+        Map bodyMap = new HashMap();
         int bodyLen = 0;
+
+        int result = 0;
 
         InputStream is = null;
         DataInputStream dis = null;
@@ -40,64 +40,66 @@ public class MsgService {
             os = socket.getOutputStream();
             dos = new DataOutputStream(os);
 
-            byte[] headerBuffer = new byte[84];
-
-            dis.read(headerBuffer);
-
             // 헤더 정보 열람
             MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 0);
             List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
-            int startPos = 0;
-            int destPos = 0;
-
+            int headerLength = 0;
             for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
-                byte[] colValue = new byte[msgMetaVo.getColLength()];
-
-                System.arraycopy(headerBuffer, startPos, colValue, destPos, msgMetaVo.getColLength());
-
-                if (msgMetaVo.getColType().equals("u_int")) {
-
-
-                    BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
-
-                    LOGGER.debug("{} | {}", msgMetaVo.getFieldName(), k);
-
-                    headerMap.put(msgMetaVo.getFieldName(), k);
-
-                    if (msgMetaVo.getFieldName().equals("BodyLen")) {
-                        bodyLen = k.intValue();
-                    }
-
-                }
-                else if (msgMetaVo.getColType().equals("byte")) {
-                    String str = new String(colValue, StandardCharsets.UTF_8);
-
-                    LOGGER.debug("{} | {}", msgMetaVo.getFieldName(), str);
-
-                    headerMap.put(msgMetaVo.getFieldName(), str);
-                }
-
-
-                startPos += msgMetaVo.getColLength();
+                headerLength += msgMetaVo.getColLength();
             }
 
-            LOGGER.debug("End of Parse.");
+            LOGGER.info(String.valueOf(headerLength));
+            byte[] headerBuffer = new byte[headerLength];
 
-            String s;
+            dis.read(headerBuffer);
+
+            int startPos = 0;
+
+            LOGGER.info("@@@@@ Parsing Start @@@@@");
+
+            getMsgData(headerMap, headerBuffer, msgHeaderInfo, startPos);
+
+            bodyLen = Integer.parseInt(headerMap.get("BodyLen").toString());
+
+            if ( bodyLen > 0 ) {
+                byte[] bodyBuffer = new byte[bodyLen];
+                int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
+
+                dis.read(bodyBuffer);
+
+                // 헤더 정보 열람
+                msgMetaSearchVo = new MsgMetaSearchVo(msgId, 0);
+                List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
+
+                startPos = 0;
+
+                getMsgData(bodyMap, bodyBuffer, msgBodyInfo, startPos);
+            }
+
+            LOGGER.info("@@@@@ End of Parse @@@@@");
+
+            LOGGER.info(headerMap.toString());
+            LOGGER.info(bodyMap.toString());
+
             int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
 
-            Map bodyMap = new HashMap();
-            switch (msgId) {
-                case 16781312:
-                    bodyMap = vpp001(bodyLen, dis, headerMap);
-                    break;
-                case 16781313:
-                    bodyMap = vpp002(bodyLen, dis, headerMap);
-                    break;
-                case 16781314:
-                    bodyMap = vpp003(bodyLen, dis, headerMap);
-                    break;
+            headerMap.put("ErrCode", new BigInteger("00000000", 16));
+
+
+            //DB 작업
+            if ( msgId == VPP_001 ) {
+
+            }
+            else if ( msgId == VPP_002 ) {
+                result = processVehicleTraceInfo(headerMap, bodyMap);
+            }
+            else if ( msgId == VPP_003 ) {
+                result = processVehicleStatusInfo(headerMap, bodyMap);
+            }
+            else {
+                // 정의 되지 않은 메시지 유형
+                headerMap.put("ErrCode", new BigInteger("0E000011", 16));
             }
 
             byte[] resMsg = makeResponseMsg(msgId, headerMap, bodyMap);
@@ -118,82 +120,58 @@ public class MsgService {
                 e.printStackTrace();
             }
         }
-        return 0;
+        return result;
     }
 
-    // 주차장 정보 요청
-    private Map vpp001(int bodyLen, DataInputStream dis, Map headerMap) {
-        byte[] bodyBuffer = new byte[bodyLen];
-        int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
-
-        Map bodyMap = new HashMap();
-
-        try {
-            dis.read(bodyBuffer);
-            MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, 0);
-            List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
-
-            int startPos = 0;
-            int destPos = 0;
-
-            for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
-                byte[] colValue = new byte[msgMetaVo.getColLength()];
-
-                System.arraycopy(bodyBuffer, startPos, colValue, destPos, msgMetaVo.getColLength());
-
-                if (msgMetaVo.getColType().equals("u_int")) {
-                    BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
-
-                    LOGGER.debug("{} | {}", msgMetaVo.getFieldName(), k);
-
-                    bodyMap.put(msgMetaVo.getFieldName(), k);
-                }
-                else if (msgMetaVo.getColType().equals("byte")) {
-                    String str = new String(colValue, StandardCharsets.UTF_8);
-
-                    LOGGER.debug("{} | {}", msgMetaVo.getFieldName(), str);
-
-                    bodyMap.put(msgMetaVo.getFieldName(), str);
-                }
-                startPos += msgMetaVo.getColLength();
+    public static void getMsgData(Map dataMap, byte[] headerBuffer, List<MsgMetaVo> msgHeaderInfo, int startPos) {
+        int variableColLength = 0;
+        for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
+            if ( msgMetaVo.getColLength() == 0 ) {
+                msgMetaVo.setColLength(variableColLength);
+                variableColLength = 0;
             }
 
+            byte[] colValue = new byte[msgMetaVo.getColLength()];
 
+            System.arraycopy(headerBuffer, startPos, colValue, 0, msgMetaVo.getColLength());
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            switch (msgMetaVo.getColType()) {
+                case "u_int":
+                    BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
+
+                    LOGGER.info(msgMetaVo.getFieldName() + " | " + k);
+
+                    dataMap.put(msgMetaVo.getFieldName(), k);
+                    break;
+                case "short_int":
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+                    byteBuffer.put(colValue);
+
+                    Short s = byteBuffer.getShort();
+
+                    LOGGER.info(msgMetaVo.getFieldName() + " | " + s);
+
+                    if (msgMetaVo.getColWorkType().equals("L")) {
+                        variableColLength = s;
+                    }
+                    break;
+                case "byte":
+                case "char":
+                    String str = new String(colValue, StandardCharsets.UTF_8);
+
+                    LOGGER.info(msgMetaVo.getFieldName() + " | " + str.trim());
+
+                    dataMap.put(msgMetaVo.getFieldName(), str.trim());
+                    break;
+            }
+            startPos += msgMetaVo.getColLength();
         }
-
-        return bodyMap;
     }
 
-    // 차량 위치 정보 제공
-    private Map vpp002(int bodyLen, DataInputStream dis, Map headerMap) {
-        Map bodyMap = new HashMap();
-
-        return bodyMap;
-    }
-
-    // 차량 상태 제공
-    private Map vpp003(int bodyLen, DataInputStream dis, Map headerMap) {
-        Map bodyMap = new HashMap();
-
-        return bodyMap;
-    }
-
-    public byte[] makeMsg(String msgId) {
-        // 메시지별로 구분
-        // 발송되는 메시지에서 사용
-
-        byte[] msg = new byte[0];
-        return msg;
-    }
-
-    public byte[] makeResponseMsg(int msgId, Map headerMap, Map bodyMap) {
+    public byte[] makeResponseMsg(int msgId, Map reqHeaderMap, Map reqBodyMap) {
+        int msgType = 1;
         // response message 발송 시 사용
-        byte[] msg = new byte[0];
-
-        MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 1);
+        MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, msgType);
         List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
         ByteArrayOutputStream baos = null;
@@ -201,8 +179,39 @@ public class MsgService {
         try {
             baos = new ByteArrayOutputStream();
 
-            makeMsgByteStream(msgId, baos, msgHeaderInfo, headerMap);
+            //bodyMap을 채워주는 작업
+            Map resBodyMap = new HashMap();
 
+            if ( msgId == VPP_001 ) {
+                // 주차장 정보
+                // DB 조회 후 정보 담기.
+                TcpParkingLotReqVo tcpParkingLotReqVo = new TcpParkingLotReqVo();
+                tcpParkingLotReqVo.setLat(Integer.parseInt(reqBodyMap.get("lat").toString()));
+                tcpParkingLotReqVo.setLon(Integer.parseInt(reqBodyMap.get("lon").toString()));
+
+                TcpParkingLotResVo tcpParkingLotResVo = RmiControl.getParkingLotInfo(tcpParkingLotReqVo);
+
+                resBodyMap.put("parkingLotNo", tcpParkingLotResVo.getParkingLotNo());
+                resBodyMap.put("parkingLotNM", tcpParkingLotResVo.getParkingLotNm());
+                resBodyMap.put("parkingLotNMLen", tcpParkingLotResVo.getParkingLotNm().getBytes().length);
+                resBodyMap.put("totalListCnt", tcpParkingLotResVo.getLaneInfoList().size());
+                resBodyMap.put("list", tcpParkingLotResVo.getLaneInfoList());
+
+            }
+            else if ( msgId == VPP_002 ) {
+                // 차량 위치 정보 제공
+                // bodyMap 작업 불필요
+            }
+            else if ( msgId == VPP_003 ) {
+                // 차량 상태 제공
+                // bodyMap 작업 불필요
+            }
+
+            //Body를 먼저 만들고 헤더 생성.
+            byte[] msgBody = makeMsgBody(msgId, msgType, resBodyMap);
+            reqHeaderMap.put("BodyLen", msgBody.length);
+            makeMsgByteStream(baos, msgHeaderInfo, reqHeaderMap);
+            baos.write(msgBody);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -218,74 +227,16 @@ public class MsgService {
         return baos.toByteArray();
     }
 
-    private static void makeMsgByteStream(int msgId, ByteArrayOutputStream baos, List<MsgMetaVo> msgMetaInfo, Map metaMap) throws IOException {
-        byte[] temp = new byte[0];
-        boolean appendNullFlag = false;
-        for (MsgMetaVo msgMetaVo : msgMetaInfo) {
-            if ( !msgMetaVo.getFieldName().equals("BodyLen")) {
-                int colLength = msgMetaVo.getColLength();
-                String fieldValue = "";
-                LOGGER.info(msgMetaVo.getFieldName());
-
-                if (msgMetaVo.getColType().equals("u_int")) {
-                    if ( metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O") ) {
-                        temp = new byte[colLength];
-                    }
-                    else {
-                        temp = ByteBuffer.allocate(4).putInt(
-                                Integer.parseInt(metaMap.get(msgMetaVo.getFieldName()).toString())).array();
-                    }
-                }
-                else if (msgMetaVo.getColType().equals("byte")) {
-                    if ( metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
-                        temp = new byte[colLength];
-                    }
-                    else {
-                        fieldValue = metaMap.get(msgMetaVo.getFieldName()).toString();
-                        temp = metaMap.get(msgMetaVo.getFieldName()).toString().getBytes();
-
-                        if ( fieldValue.length() < colLength ) {
-                            appendNullFlag = true;
-                        }
-                    }
-                }
-                baos.write(temp);
-
-                if (appendNullFlag) {
-                    baos.write(new byte[colLength - fieldValue.length()]);
-                    appendNullFlag = false;
-                }
-            }
-            else {
-                byte[] body = makeBody(msgId);
-                baos.write(ByteBuffer.allocate(4).putInt(body.length).array());
-                baos.write(body);
-            }
-        }
-    }
-
-    private static byte[] makeBody(int msgId) {
+    private static byte[] makeMsgBody(int msgId, int msgType, Map bodyMap) {
         ByteArrayOutputStream baos = null;
 
         try {
-            MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, 1);
+            MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, msgType);
             List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
             baos = new ByteArrayOutputStream();
-            Map bodyMap = new HashMap();
 
-            //bodyMap을 채워주는 작업 필요
-            if ( msgId == 16781312 ) {
-
-            }
-            else if ( msgId == 16781313 ) {
-
-            }
-            else if ( msgId == 16781314 ) {
-
-            }
-
-            makeMsgByteStream(msgId, baos, msgBodyInfo, bodyMap);
+            makeMsgByteStream(baos, msgBodyInfo, bodyMap);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -295,40 +246,200 @@ public class MsgService {
                 e.printStackTrace();
             }
         }
-
         return baos.toByteArray();
     }
 
-//    public static int convertByteToInt(byte[] b)
-//    {
-//        int value= 0;
-//        for(int i=0; i<b.length; i++)
-//            value = (value << 8) | b[i];
-//        return value;
-//    }
-//
-//    public static final byte[] intToByteArray(int value) {
-//        return new byte[] {
-//                (byte)(value >>> 24),
-//                (byte)(value >>> 16),
-//                (byte)(value >>> 8),
-//                (byte)value};
-//    }
+    public static void makeMsgByteStream(ByteArrayOutputStream baos, List<MsgMetaVo> msgMetaInfo, Map metaMap) throws IOException {
+        byte[] temp = new byte[0];
+        boolean appendNullFlag = false;
 
-    public static String byteArrayToHex(byte[] ba) {
-        if (ba == null || ba.length == 0) {
-            return null;
+        for (MsgMetaVo msgMetaVo : msgMetaInfo) {
+            int colLength = msgMetaVo.getColLength();
+            String fieldValue = "";
+            LOGGER.info(msgMetaVo.getFieldName());
+
+            switch (msgMetaVo.getColType()) {
+                case "u_int":
+                    if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
+                        temp = new byte[colLength];
+                    }
+                    else {
+                        temp = ByteBuffer.allocate(4).putInt(
+                                Integer.parseInt(metaMap.get(msgMetaVo.getFieldName()).toString())).array();
+                    }
+                    break;
+                case "short_int":
+                    LOGGER.warn(metaMap.get(msgMetaVo.getFieldName()).toString());
+
+                    if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
+                        temp = new byte[colLength];
+                    }
+                    else {
+                        temp = ByteBuffer.allocate(2).putShort(
+                                Short.parseShort(metaMap.get(msgMetaVo.getFieldName()).toString())).array();
+
+                        LOGGER.error(String.valueOf(byteToShort(temp)));
+                    }
+                    break;
+                case "byte":
+                case "char":
+                    if (colLength == 0) {
+                        // 가변 길이 처리
+                        if ( metaMap.get(msgMetaVo.getFieldName()) != null ) {
+                            colLength = metaMap.get(msgMetaVo.getFieldName()).toString().getBytes().length;
+                        }
+                    }
+
+                    if (metaMap.get(msgMetaVo.getFieldName()) == null) {
+                        LOGGER.error("NULL " + msgMetaVo.getFieldName());
+
+                        if ( msgMetaVo.getColReqType().equals("O") ) {
+                            temp = new byte[colLength];
+                        }
+                        else {
+                            temp = new byte[0];
+                            appendNullFlag = true;
+                        }
+                    }
+                    else {
+                        fieldValue = metaMap.get(msgMetaVo.getFieldName()).toString();
+                        temp = metaMap.get(msgMetaVo.getFieldName()).toString().getBytes();
+
+                        if (fieldValue.getBytes().length < colLength) {
+                            appendNullFlag = true;
+                        }
+
+                        LOGGER.warn(metaMap.get(msgMetaVo.getFieldName()).toString());
+                    }
+                    break;
+            }
+
+            baos.write(temp);
+
+            if (appendNullFlag) {
+                baos.write(new byte[colLength - fieldValue.getBytes().length]);
+                appendNullFlag = false;
+            }
+
+            // 배열일 경우에 실행.
+            if ( msgMetaVo.getColWorkType().equals("A")) {
+                if ( msgMetaVo.getMsgId() == VPP_001 ) {
+                    if ( msgMetaVo.getSeq() == 3 ) {
+                        appendTcpLaneInfoList(msgMetaVo.getMsgId(), baos, metaMap);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void appendTcpLaneInfoList(int msgId, ByteArrayOutputStream baos, Map bodyMap) {
+        MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, 11);
+        List<MsgMetaVo> arrayMetaInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
+
+        List<TcpLaneInfoVo> list = (List<TcpLaneInfoVo>) bodyMap.get("list");
+
+        try {
+            for (TcpLaneInfoVo tcpLaneInfoVo : list) {
+                Map tcpLaneInfoMap = new HashMap();
+                tcpLaneInfoMap.put("laneCode", tcpLaneInfoVo.getLaneCode());
+                tcpLaneInfoMap.put("parkingLotNo", tcpLaneInfoVo.getParkingLotNo());
+                tcpLaneInfoMap.put("parkingLevelCode", tcpLaneInfoVo.getParkingLevelCode());
+                tcpLaneInfoMap.put("parkingZoneCode", tcpLaneInfoVo.getParkingZoneCode());
+                tcpLaneInfoMap.put("laneSeqNum", tcpLaneInfoVo.getLaneSeqNum());
+                tcpLaneInfoMap.put("laneNameLen", tcpLaneInfoVo.getLaneNameLen());
+                tcpLaneInfoMap.put("laneName", tcpLaneInfoVo.getLaneName());
+                tcpLaneInfoMap.put("laneType", tcpLaneInfoVo.getLaneType());
+                tcpLaneInfoMap.put("manageType", tcpLaneInfoVo.getManageType());
+                tcpLaneInfoMap.put("laneStatus", tcpLaneInfoVo.getLaneStatus());
+                tcpLaneInfoMap.put("carStatus", "1");
+                tcpLaneInfoMap.put("carNo", "1");
+                tcpLaneInfoMap.put("carInDate", "1");
+
+                makeMsgByteStream(baos, arrayMetaInfo, tcpLaneInfoMap);
+
+                LOGGER.info(tcpLaneInfoMap.toString());
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private int processVehicleTraceInfo(Map headerMap, Map bodyMap) {
+        int result = 0;
+
+        try {
+            VehicleTraceInfoVo vo = new VehicleTraceInfoVo();
+
+            vo.setServiceId(headerMap.get("ServiceId").toString());
+            vo.setVersion(headerMap.get("Version").toString());
+            vo.setVIN(headerMap.get("VIN").toString());
+            vo.setNadId(headerMap.get("NadId").toString());
+            vo.setGatherStartDate(bodyMap.get("gatherStartDate").toString());
+            vo.setGatherStartTime(bodyMap.get("gatherStartTime").toString());
+            vo.setLon(Integer.parseInt(bodyMap.get("lon").toString()));
+            vo.setLat(Integer.parseInt(bodyMap.get("lat").toString()));
+            vo.setHeading(bodyMap.get("heading").toString());
+            vo.setObjStatic(bodyMap.get("objStatic").toString());
+            vo.setObjDynamic(bodyMap.get("objDynamic").toString());
+
+            int count = MsgDao.getCarLocationInfoCount(vo);
+
+            LOGGER.info(String.valueOf(count));
+
+            if ( count == 0 ) {
+                MsgDao.insertCarLocationInfo(vo);
+            }
+            else {
+                MsgDao.updateCarLocationInfo(vo);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            result = 1;
         }
 
-        StringBuffer sb = new StringBuffer(ba.length * 2);
-        String hexNumber;
+        return result;
+    }
 
-        for (int x = 0; x < ba.length; x++) {
-            hexNumber = "0" + Integer.toHexString(0xff & ba[x]);
-            sb.append(hexNumber.substring(hexNumber.length() - 2));
+    private int processVehicleStatusInfo(Map headerMap, Map bodyMap) {
+        int result = 0;
+
+        try {
+            VehicleStatusInfoVo vo = new VehicleStatusInfoVo();
+
+            vo.setServiceId(headerMap.get("ServiceId").toString());
+            vo.setVersion(headerMap.get("Version").toString());
+            vo.setVIN(headerMap.get("VIN").toString());
+            vo.setNadId(headerMap.get("NadId").toString());
+
+            vo.setDrivingStatus(bodyMap.get("drivingStatus").toString());
+            vo.setDoorOpen(bodyMap.get("doorOpen").toString());
+            vo.setEngineStatus(bodyMap.get("engineStatus").toString());
+            vo.setTransmission(bodyMap.get("transmission").toString());
+            vo.setVelocity(bodyMap.get("velocity").toString());
+//            vo.setSteering(bodyMap.get("").toString());
+//            vo.setControl(bodyMap.get("").toString());
+//            vo.setUseType(bodyMap.get("").toString());
+//            vo.setInOut(bodyMap.get("").toString());
+
+            int count = MsgDao.getCarStatusInfoCount(vo);
+
+            LOGGER.info(String.valueOf(count));
+
+            if ( count == 0 ) {
+                MsgDao.insertCarStatusInfo(vo);
+            }
+            else {
+                MsgDao.updateCarStatusInfo(vo);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            result = 1;
         }
 
-        return sb.toString();
+        return result;
     }
 
 }

@@ -1,8 +1,7 @@
 package com.hyundai_mnsoft.vpp.tcp.server;
 
 import com.hyundai_mnsoft.vpp.rmi.TcpServerInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TcpServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TcpServer.class);
+    private static Logger LOGGER = Logger.getLogger(TcpServer.class);
 
     private static final int THREAD_COUNT = 10;
     private static ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -28,7 +27,7 @@ public class TcpServer {
             loadProperties();
             port = Integer.parseInt(props.getProperty("tcp.port"));
 
-//            initRmi();
+            initRmi();
 
             LOGGER.debug(">> Tcp Server Running...");
 
@@ -60,7 +59,6 @@ public class TcpServer {
         }
     }
 
-
     private static void loadProperties() throws Exception {
         String propFile = System.getProperty("user.dir") + System.getProperty("file.separator") + "config.properties";
 
@@ -80,7 +78,7 @@ public class TcpServer {
         try {
             TcpServerInterface serverIf = new TcpServerImpl();
 
-            int serverPort = Integer.parseInt(System.getProperty("httpserver.port"));
+            int serverPort = Integer.parseInt(props.getProperty("httpserver.port"));
 
             System.setProperty("java.security.policy", "AllPermission.policy");
             Registry registry = LocateRegistry.createRegistry(serverPort);
@@ -95,7 +93,8 @@ public class TcpServer {
 }
 
 class ConnectionWrap implements Runnable {
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private static Logger LOGGER = Logger.getLogger(ConnectionWrap.class);
+
     private Socket socket = null;
 
     private MsgService msgService = new MsgService();
@@ -106,10 +105,6 @@ class ConnectionWrap implements Runnable {
 
     public void run() {
         try{
-            //Process Message
-
-            // some codes here...
-
             msgService.processMsg(socket);
 
             socket.close();

@@ -6,8 +6,8 @@ import java.io.Serializable;
 
 public class TcpParkingLotReqVo implements Serializable {
     private String reqTime;
-    private String lon;
-    private String lat;
+    private int lon;
+    private int lat;
 
     public String getReqTime() {
         return reqTime;
@@ -17,19 +17,19 @@ public class TcpParkingLotReqVo implements Serializable {
         this.reqTime = reqTime;
     }
 
-    public String getLon() {
+    public int getLon() {
         return lon;
     }
 
-    public void setLon(String lon) {
+    public void setLon(int lon) {
         this.lon = lon;
     }
 
-    public String getLat() {
+    public int getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public void setLat(int lat) {
         this.lat = lat;
     }
 
