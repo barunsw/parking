@@ -14,10 +14,10 @@ public class RequestVo implements Serializable {
     private String lat;
     private String alter;
     private String ReqCompression;
-    private String ReqEncryption;
+    private String ReqEncrption;
     private String ReqFormat;
     private String RespCompression;
-    private String RespEncryption;
+    private String RespEncrption;
     private String RespFormat;
     private String Country;
     private String Date;
@@ -94,12 +94,12 @@ public class RequestVo implements Serializable {
         ReqCompression = reqCompression;
     }
 
-    public String getReqEncryption() {
-        return ReqEncryption;
+    public String getReqEncrption() {
+        return ReqEncrption;
     }
 
-    public void setReqEncryption(String reqEncryption) {
-        ReqEncryption = reqEncryption;
+    public void setReqEncrption(String reqEncrption) {
+        ReqEncrption = reqEncrption;
     }
 
     public String getReqFormat() {
@@ -118,12 +118,12 @@ public class RequestVo implements Serializable {
         RespCompression = respCompression;
     }
 
-    public String getRespEncryption() {
-        return RespEncryption;
+    public String getRespEncrption() {
+        return RespEncrption;
     }
 
-    public void setRespEncryption(String respEncryption) {
-        RespEncryption = respEncryption;
+    public void setRespEncrption(String respEncrption) {
+        RespEncrption = respEncrption;
     }
 
     public String getRespFormat() {

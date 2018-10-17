@@ -1,6 +1,9 @@
 package com.hyundai_mnsoft.vpp.tcp;
 
 import com.hyundai_mnsoft.vpp.rmi.TcpServerInterface;
+import com.hyundai_mnsoft.vpp.vo.RemoteControlReqInfoVo;
+import com.hyundai_mnsoft.vpp.vo.RemoteControlResInfoVo;
+import com.hyundai_mnsoft.vpp.vo.RequestVo;
 import org.apache.log4j.Logger;
 
 import java.rmi.registry.LocateRegistry;
@@ -26,7 +29,16 @@ public class RmiControl {
         }
     }
 
-    public static String test(String msg) throws Exception {
-        return serverIf.test(msg);
+    public static int sendVpp002Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws Exception {
+        return serverIf.sendVpp002Msg(requestVo, remoteControlReqInfoVo);
     }
+
+    public static RemoteControlResInfoVo sendVpp004Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws Exception {
+        return serverIf.sendVpp004Msg(requestVo, remoteControlReqInfoVo);
+    }
+
+    public static RemoteControlResInfoVo sendVpp005Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws Exception {
+        return serverIf.sendVpp005Msg(requestVo, remoteControlReqInfoVo);
+    }
+
 }

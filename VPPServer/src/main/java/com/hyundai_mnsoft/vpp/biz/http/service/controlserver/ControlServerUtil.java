@@ -1,4 +1,4 @@
-package com.hyundai_mnsoft.vpp.biz.http.service;
+package com.hyundai_mnsoft.vpp.biz.http.service.controlserver;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -6,17 +6,33 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
+
 
 public class ControlServerUtil {
 
-//    @Value("#{config['controlServer.ip']}")
-    private String ip = "125.143.164.73";
+    private Properties props;
 
-//    @Value("#{config['controlServer.port']}")
-    private String port = "9003";
+    private String ip;
+    private String port;
+
+    public ControlServerUtil() {
+        Resource resource = new ClassPathResource("/config.properties");
+        try {
+            props = PropertiesLoaderUtils.loadProperties(resource);
+            ip = props.getProperty("controlServer.ip");
+            port = props.getProperty("controlServer.port");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public String getResFromControlServer(String path) {
         return getResString(path, "{}");

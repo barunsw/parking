@@ -1,5 +1,6 @@
 package com.hyundai_mnsoft.vpp.biz.http.service;
 
+import com.hyundai_mnsoft.vpp.biz.http.service.controlserver.ControlServerService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -19,5 +20,6 @@ public class CronService {
     @Scheduled(fixedRate = WORK_INTERVAL) // 1분마다 실행
     public void getData() {
 //        controlServerService.reloadLaneInfoStatus();
+//        controlServerService.reloadParkingUse();
     }
 }

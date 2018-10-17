@@ -4,9 +4,19 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-public class ReserveCarInfoVo implements Serializable {
+public class RemoteControlReqInfoVo implements Serializable {
+    private String remoteCtl;
     private String Reserved;
     private String reqTime;
+    private String parkingLotID;
+
+    public String getRemoteCtl() {
+        return remoteCtl;
+    }
+
+    public void setRemoteCtl(String remoteCtl) {
+        this.remoteCtl = remoteCtl;
+    }
 
     public String getReserved() {
         return Reserved;
@@ -22,6 +32,14 @@ public class ReserveCarInfoVo implements Serializable {
 
     public void setReqTime(String reqTime) {
         this.reqTime = reqTime;
+    }
+
+    public String getParkingLotID() {
+        return parkingLotID;
+    }
+
+    public void setParkingLotID(String parkingLotID) {
+        this.parkingLotID = parkingLotID;
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.hyundai_mnsoft.vpp.vo;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
+import java.sql.Blob;
 
 public class VehicleStatusInfoVo implements Serializable {
     private String ServiceId;
@@ -17,7 +17,7 @@ public class VehicleStatusInfoVo implements Serializable {
     private String velocity;
     private String steering;
     private String control;
-    private MultipartFile routeLine;
+    private Blob routeLine;
     private String useType;
     private String inOut;
     private String updateDate;
@@ -111,11 +111,11 @@ public class VehicleStatusInfoVo implements Serializable {
         this.control = control;
     }
 
-    public MultipartFile getRouteLine() {
+    public Blob getRouteLine() {
         return routeLine;
     }
 
-    public void setRouteLine(MultipartFile routeLine) {
+    public void setRouteLine(Blob routeLine) {
         this.routeLine = routeLine;
     }
 

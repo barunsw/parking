@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.tcp.TcpRemoteDao">
+	<select id="getParkingLotUseInfoList" resultType="com.hyundai_mnsoft.vpp.vo.TcpLaneInfoVo"
+			parameterType="com.hyundai_mnsoft.vpp.vo.TcpParkingLotReqVo">
+		SELECT
+			   lane_code as 'laneCode',
+			   parkinglot_no as 'parkingLotNo',
+			   parking_level_code as 'parkingLevelCode',
+			   parking_zone_code as 'parkingZoneCode',
+			   lane_seq_num as 'laneSeqNum',
+			   lane_name as 'laneName',
+			   lane_type as 'laneType',
+			   manage_type as 'manageType',
+			   lane_status as 'laneStatus'
+		FROM
+			 tbl_parkingLotUseInfo
+		WHERE
+				parkinglot_no = #{parkingAreaID}
+	</select>
+
+	<select id="getParkingLotInfo" resultType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseSearchVo"
+			parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo">
+		SELECT
+			   pl_id as 'plId',
+			   rl_id as 'rlId'
+		FROM
+			 tbl_parkingLot
+		WHERE
+				pl_id = #{parkingAreaID}
+		LIMIT 1;
+	</select>
+
+	<select id="getParkingLotUseLaneCodeList" resultType="com.hyundai_mnsoft.vpp.vo.TcpLaneInfoVo"
+			parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseSearchVo">
+		SELECT
+		lane_code as 'laneCode'
+		<!--
+				,
+			   parkinglot_no as 'parkingLotNo',
+			   parking_level_code as 'parkingLevelCode',
+			   parking_zone_code as 'parkingZoneCode',
+			   lane_seq_num as 'laneSeqNum',
+			   lane_name as 'laneName',
+			   lane_type as 'laneType',
+			   manage_type as 'manageType',
+			   lane_status as 'laneStatus'
+			   -->
+		FROM
+		tbl_parkingLotUseInfo
+		WHERE
+		slot_id = #{plId}
+		AND
+		section_id = #{rlId}
+	</select>
+</mapper>

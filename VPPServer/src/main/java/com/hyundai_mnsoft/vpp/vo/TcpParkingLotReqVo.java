@@ -4,17 +4,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-public class ReserveCarInfoVo implements Serializable {
-    private String Reserved;
+public class TcpParkingLotReqVo implements Serializable {
     private String reqTime;
-
-    public String getReserved() {
-        return Reserved;
-    }
-
-    public void setReserved(String reserved) {
-        Reserved = reserved;
-    }
+    private int lon;
+    private int lat;
 
     public String getReqTime() {
         return reqTime;
@@ -22,6 +15,22 @@ public class ReserveCarInfoVo implements Serializable {
 
     public void setReqTime(String reqTime) {
         this.reqTime = reqTime;
+    }
+
+    public int getLon() {
+        return lon;
+    }
+
+    public void setLon(int lon) {
+        this.lon = lon;
+    }
+
+    public int getLat() {
+        return lat;
+    }
+
+    public void setLat(int lat) {
+        this.lat = lat;
     }
 
     @Override

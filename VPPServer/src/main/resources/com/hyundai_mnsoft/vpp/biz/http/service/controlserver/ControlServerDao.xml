@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.ControlServerDao">
+<mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.controlserver.ControlServerDao">
 
 	<select id="getParkingLotUseInfoCount" resultType="java.lang.Integer"
 			parameterType="java.lang.String">
@@ -73,7 +73,69 @@
 			slot_id = #{slot_id},
 			updateDate = NOW()
 		WHERE
-			lane_code = #{lane_code}
+				lane_code = #{lane_code}
 	</update>
-	
+
+	<select id="getParkingLotBDLVInfoCount" resultType="java.lang.Integer"
+			parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotBDLVInfoVo">
+		SELECT
+			   COUNT(*)
+		FROM
+			 tbl_parkinglotbdlvinfo
+		WHERE
+				parkinglot_no = #{parkinglot_no}
+		  AND
+				parking_level_code = #{parking_level_code}
+	</select>
+
+	<insert id="insertParkingLotBDLVInfoCount" parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseInfoVo">
+		INSERT INTO tbl_parkinglotbdlvinfo (
+				parkinglot_no,
+				parking_level_code,
+				parking_level_name,
+				total,
+				current,
+				margin,
+				ratio,
+				parking_full,
+				parking_jam,
+				seq,
+				updateDate,
+				insertDate
+				)
+		VALUES (
+					   #{parkinglot_no},
+					   #{parking_level_code},
+					   #{parking_level_name},
+					   #{total},
+					   #{current},
+					   #{margin},
+					   #{ratio},
+					   #{parking_full},
+					   #{parking_jam},
+					   #{seq},
+					   NOW(),
+					   NOW())
+	</insert>
+
+	<update id="updateParkingLotBDLVInfoCount" parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseInfoVo">
+		UPDATE tbl_parkinglotbdlvinfo
+		SET
+			parking_level_name = #{parking_level_name},
+			total = #{total},
+			current = #{current},
+			margin = #{margin},
+			ratio = #{ratio},
+			parking_full = #{parking_full},
+			parking_jam = #{parking_jam},
+			seq = #{seq},
+			updateDate = NOW()
+		WHERE
+				parkinglot_no =  #{parkinglot_no}
+		AND
+				parking_level_code =  #{parking_level_code}
+	</update>
+
+
+
 </mapper>
