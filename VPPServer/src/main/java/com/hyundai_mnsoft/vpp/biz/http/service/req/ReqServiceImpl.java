@@ -69,5 +69,8 @@ public class ReqServiceImpl implements ReqService {
         return reqDao.getVehicleTraceInfo(requestVo);
     }
 
-
+    @Override
+    public List<CodeMasterInfoVo> getCodeMasterInfo(CodeMasterReqVo codeMasterReqVo) {
+        return controlServerService.getCodeMaster(codeMasterReqVo);
+    }
 }

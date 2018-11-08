@@ -10,7 +10,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <java-version>1.8</java-version>
+        <java-version>1.7</java-version>
         <org.slf4j-version>1.7.12</org.slf4j-version>
         <org.springframework-version>4.3.6.RELEASE</org.springframework-version>
         <org.springframework-security-version>4.2.6.RELEASE</org.springframework-security-version>
@@ -196,11 +196,11 @@
         </plugin>
 
         <plugin>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-                <warSourceDirectory>${basedir}/WebContent</warSourceDirectory>
-            </configuration>
-        </plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+            <warSourceDirectory>${basedir}/web</warSourceDirectory>
+        </configuration>
+    </plugin>
     </plugins>
     </build>
 </project>

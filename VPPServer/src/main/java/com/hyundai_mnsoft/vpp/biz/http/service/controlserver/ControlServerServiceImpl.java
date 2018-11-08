@@ -1,6 +1,8 @@
 package com.hyundai_mnsoft.vpp.biz.http.service.controlserver;
 
 import com.google.gson.Gson;
+import com.hyundai_mnsoft.vpp.vo.CodeMasterInfoVo;
+import com.hyundai_mnsoft.vpp.vo.CodeMasterReqVo;
 import com.hyundai_mnsoft.vpp.vo.ParkingLotBDLVInfoVo;
 import com.hyundai_mnsoft.vpp.vo.ParkingLotUseInfoVo;
 import org.apache.log4j.Logger;
@@ -10,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -127,6 +130,39 @@ public class ControlServerServiceImpl implements ControlServerService {
             }
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<CodeMasterInfoVo> getCodeMaster(CodeMasterReqVo codeMasterReqVo) {
+        try{
+            String param = "{\"code_group\" : \"" + codeMasterReqVo.getCode_group() + "\"," +
+                    "\"code\" : \"" + codeMasterReqVo.getCode() + "\"" +
+                    "}";
+            String result = util.getResFromControlServer("/manage/codemaster", param);
+
+            JSONParser parser = new JSONParser();
+            Object resultJson = parser.parse(result);
+
+            JSONObject jsonObj = (JSONObject) resultJson;
+
+            LOGGER.debug(jsonObj.get("codeMasterSub"));
+
+            List<JSONObject> codeMasterSub = (List<JSONObject>) jsonObj.get("codeMasterSub");
+
+            List<CodeMasterInfoVo> resultList = new ArrayList<>();
+
+            for ( JSONObject a : codeMasterSub ) {
+                CodeMasterInfoVo oneCodeMasterSub = gson.fromJson(a.toJSONString(), CodeMasterInfoVo.class);
+                resultList.add(oneCodeMasterSub);
+            }
+
+            return resultList;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+
+            return null;
         }
     }
 }

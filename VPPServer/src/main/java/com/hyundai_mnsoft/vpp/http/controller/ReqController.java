@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Controller
 @RequestMapping("/")
@@ -234,6 +235,36 @@ public class ReqController {
         }
 
         return vehicleTraceInfoVo;
+    }
+
+    @RequestMapping(value = "/codemaster", method = RequestMethod.POST)
+    public @ResponseBody
+    List<CodeMasterInfoVo> test(@RequestHeader HttpHeaders headers,  @RequestBody(required = false) CodeMasterReqVo requestBody, HttpServletResponse res) {
+        LOGGER.debug(headers.toString());
+        RequestVo requestVo = null;
+        List<CodeMasterInfoVo> codeMasterInfoVoList = null;
+        try {
+            requestVo = processHeader(headers);
+
+            LOGGER.debug(requestBody.toString());
+
+            codeMasterInfoVoList = reqService.getCodeMasterInfo(requestBody);
+
+            LOGGER.debug(codeMasterInfoVoList.toString());
+
+            res.setHeader("errCode", "0");
+            res.setHeader("errDesc", "Success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setHeader("errCode", "1");
+            res.setHeader("errDesc", "Fail - working error.");
+        }
+        finally {
+            res.setHeader("MsgId", "TEST");
+            res.setHeader("NadId", requestVo.getNadId());
+        }
+
+        return codeMasterInfoVoList;
     }
 
     /*
