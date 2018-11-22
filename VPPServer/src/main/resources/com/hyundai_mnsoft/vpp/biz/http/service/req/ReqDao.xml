@@ -3,16 +3,24 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hyundai_mnsoft.vpp.biz.http.service.req.ReqDao">
-	<select id="getParkingLotInfo" resultType="com.hyundai_mnsoft.vpp.vo.ParkingLotUseSearchVo"
+	<select id="getParkingLotInfo" resultType="com.hyundai_mnsoft.vpp.vo.LaneInfoVo"
 			parameterType="com.hyundai_mnsoft.vpp.vo.ParkingLotReqVo">
 		SELECT
-			pl_id as 'plId',
-			rl_id as 'rlId'
+			lane_code as 'laneCode',
+			parkinglot_no as 'parkingLotNo',
+		    parking_level_code as 'parkingLevelCode',
+		    parking_zone_code as 'parkingZoneCode',
+		    lane_seq_num as 'laneSeqNum',
+		    lane_name as 'laneName',
+		    lane_type as 'laneType',
+		    manage_type as 'manageType',
+		    lane_status as 'laneStatus',
+			section_id as 'sectionId',
+			slot_id as 'slotId'
 		FROM
-			tbl_parkingLot
+			tbl_parkinglotuseinfo
 		WHERE
-			pl_id = #{parkingAreaID}
-		LIMIT 1;
+			parkinglot_no = #{parkingAreaID}
 	</select>
 
 	<select id="getParkingLotUseLaneCodeList" resultType="com.hyundai_mnsoft.vpp.vo.LaneInfoVo"

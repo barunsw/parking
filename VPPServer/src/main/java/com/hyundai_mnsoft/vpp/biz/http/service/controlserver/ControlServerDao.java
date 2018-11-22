@@ -6,12 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ControlServerDao {
-    int getParkingLotUseInfoCount(String lane_code);
     void insertParkingLotUseInfo(ParkingLotUseInfoVo vo);
-    void updateParkingLotUseInfo(ParkingLotUseInfoVo vo);
-
-    int getParkingLotBDLVInfoCount(ParkingLotBDLVInfoVo vo);
-    void insertParkingLotBDLVInfoCount(ParkingLotBDLVInfoVo vo);
-    void updateParkingLotBDLVInfoCount(ParkingLotBDLVInfoVo vo);
-
+    void insertParkingLotBDLVInfo(ParkingLotBDLVInfoVo vo);
 }

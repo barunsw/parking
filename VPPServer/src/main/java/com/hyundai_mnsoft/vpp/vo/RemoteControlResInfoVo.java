@@ -5,17 +5,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 public class RemoteControlResInfoVo implements Serializable {
-    private String errCode;
-
     private String respTime;
     private String routeData;
 
-    public String getErrCode() {
-        return errCode;
-    }
-
-    public void setErrCode(String errCode) {
-        this.errCode = errCode;
+    public RemoteControlResInfoVo(TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo) {
+        this.respTime = tcpRemoteControlResInfoVo.getRespTime();
+        this.routeData = tcpRemoteControlResInfoVo.getRouteData();
     }
 
     public String getRespTime() {

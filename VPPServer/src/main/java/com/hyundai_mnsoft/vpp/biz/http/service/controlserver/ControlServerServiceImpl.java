@@ -46,17 +46,8 @@ public class ControlServerServiceImpl implements ControlServerService {
 
             for ( JSONObject laneInfoStatus : laneInfoStatusList ) {
                 ParkingLotUseInfoVo vo = gson.fromJson(laneInfoStatus.toJSONString(), ParkingLotUseInfoVo.class);
-
                 LOGGER.info(vo);
-
-                int count = controlServerDao.getParkingLotUseInfoCount(vo.getLane_code());
-
-                if ( count == 0 ) {
-                    controlServerDao.insertParkingLotUseInfo(vo);
-                }
-                else {
-                    controlServerDao.updateParkingLotUseInfo(vo);
-                }
+                controlServerDao.insertParkingLotUseInfo(vo);
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -79,14 +70,7 @@ public class ControlServerServiceImpl implements ControlServerService {
 
             ParkingLotUseInfoVo resultVo = gson.fromJson(laneInfoStatusList.get(0).toJSONString(), ParkingLotUseInfoVo.class);
 
-            int count = controlServerDao.getParkingLotUseInfoCount(resultVo.getLane_code());
-
-            if ( count == 0 ) {
-                controlServerDao.insertParkingLotUseInfo(resultVo);
-            }
-            else {
-                controlServerDao.updateParkingLotUseInfo(resultVo);
-            }
+            controlServerDao.insertParkingLotUseInfo(resultVo);
 
             // 정보 갱신 후 해당 내용 return.
 
@@ -118,15 +102,7 @@ public class ControlServerServiceImpl implements ControlServerService {
                 ParkingLotBDLVInfoVo vo = gson.fromJson(parkingUseInfo.toJSONString(), ParkingLotBDLVInfoVo.class);
 
                 LOGGER.info(vo);
-
-                int count = controlServerDao.getParkingLotBDLVInfoCount(vo);
-
-                if ( count == 0 ) {
-                    controlServerDao.insertParkingLotBDLVInfoCount(vo);
-                }
-                else {
-                    controlServerDao.updateParkingLotBDLVInfoCount(vo);
-                }
+                controlServerDao.insertParkingLotBDLVInfo(vo);
             }
         } catch (ParseException e) {
             e.printStackTrace();

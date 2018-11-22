@@ -8,6 +8,7 @@ public class TcpParkingLotReqVo implements Serializable {
     private String reqTime;
     private int lon;
     private int lat;
+    private String parkingLotID;
 
     public String getReqTime() {
         return reqTime;
@@ -31,6 +32,14 @@ public class TcpParkingLotReqVo implements Serializable {
 
     public void setLat(int lat) {
         this.lat = lat;
+    }
+
+    public String getParkingLotID() {
+        return parkingLotID;
+    }
+
+    public void setParkingLotID(String parkingLotID) {
+        this.parkingLotID = parkingLotID;
     }
 
     @Override

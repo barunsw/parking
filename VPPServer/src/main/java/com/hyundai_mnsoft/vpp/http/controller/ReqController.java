@@ -126,11 +126,13 @@ public class ReqController {
 
     // 출차 요청
     @RequestMapping(value = "/vpp104", method = RequestMethod.POST)
-    public @ResponseBody RemoteControlResInfoVo vpp104(@RequestHeader HttpHeaders headers,
-                                                @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
-                                                HttpServletResponse res) {
+    public @ResponseBody
+    RemoteControlResInfoVo vpp104(@RequestHeader HttpHeaders headers,
+                                     @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
+                                     HttpServletResponse res) {
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
+        TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = null;
         RemoteControlResInfoVo remoteControlResInfoVo = null;
         try {
             requestVo = processHeader(headers);
@@ -138,11 +140,15 @@ public class ReqController {
             LOGGER.debug(requestBody.toString());
 
             // 메시지 전송 후 결과값 받아옴
-            remoteControlResInfoVo = RmiControl.sendVpp004Msg(requestVo, requestBody);
+            tcpRemoteControlResInfoVo = RmiControl.sendVpp004Msg(requestVo, requestBody);
 
-            LOGGER.debug(remoteControlResInfoVo.toString());
+            LOGGER.debug(tcpRemoteControlResInfoVo.toString());
 
-            int result = Integer.parseInt(remoteControlResInfoVo.getErrCode());
+            // Tcp 통신의 결과와 errCode를 함께 받아옴
+            int result = Integer.parseInt(tcpRemoteControlResInfoVo.getErrCode());
+
+            // 불필요한 errCode를 제거한 후 Response에 담아줌
+            remoteControlResInfoVo = new RemoteControlResInfoVo(tcpRemoteControlResInfoVo);
 
             if ( result == 0 ) {
                 res.setHeader("errCode", "0");
@@ -159,7 +165,7 @@ public class ReqController {
             res.setHeader("errDesc", "Fail - working error.");
         }
         finally {
-            res.setHeader("MsgId", "VPP-103");
+            res.setHeader("MsgId", "VPP-104");
             res.setHeader("NadId", requestVo.getNadId());
         }
 
@@ -168,11 +174,13 @@ public class ReqController {
 
     // 주차 요청
     @RequestMapping(value = "/vpp105", method = RequestMethod.POST)
-    public @ResponseBody RemoteControlResInfoVo vpp105(@RequestHeader HttpHeaders headers,
-                                                       @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
-                                                       HttpServletResponse res) {
+    public @ResponseBody
+    RemoteControlResInfoVo vpp105(@RequestHeader HttpHeaders headers,
+                                     @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
+                                     HttpServletResponse res) {
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
+        TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = null;
         RemoteControlResInfoVo remoteControlResInfoVo = null;
         try {
             requestVo = processHeader(headers);
@@ -180,10 +188,12 @@ public class ReqController {
             LOGGER.debug(requestBody.toString());
 
             // 메시지 전송 후 결과값 받아옴
-            remoteControlResInfoVo = RmiControl.sendVpp005Msg(requestVo, requestBody);
-            LOGGER.debug(remoteControlResInfoVo.toString());
+            tcpRemoteControlResInfoVo = RmiControl.sendVpp005Msg(requestVo, requestBody);
+            LOGGER.debug(tcpRemoteControlResInfoVo.toString());
 
-            int result = Integer.parseInt(remoteControlResInfoVo.getErrCode());
+            int result = Integer.parseInt(tcpRemoteControlResInfoVo.getErrCode());
+
+            remoteControlResInfoVo = new RemoteControlResInfoVo(tcpRemoteControlResInfoVo);
 
             if ( result == 0 ) {
                 res.setHeader("errCode", "0");
@@ -200,7 +210,7 @@ public class ReqController {
             res.setHeader("errDesc", "Fail - working error.");
         }
         finally {
-            res.setHeader("MsgId", "VPP-103");
+            res.setHeader("MsgId", "VPP-105");
             res.setHeader("NadId", requestVo.getNadId());
         }
 
@@ -230,7 +240,7 @@ public class ReqController {
             res.setHeader("errDesc", "Fail - working error.");
         }
         finally {
-            res.setHeader("MsgId", "VPP-103");
+            res.setHeader("MsgId", "VPP-106");
             res.setHeader("NadId", requestVo.getNadId());
         }
 
@@ -239,14 +249,20 @@ public class ReqController {
 
     @RequestMapping(value = "/codemaster", method = RequestMethod.POST)
     public @ResponseBody
-    List<CodeMasterInfoVo> test(@RequestHeader HttpHeaders headers,  @RequestBody(required = false) CodeMasterReqVo requestBody, HttpServletResponse res) {
+    List<CodeMasterInfoVo> test(@RequestHeader(required = false) HttpHeaders headers,  @RequestBody(required = false) CodeMasterReqVo requestBody, HttpServletResponse res) {
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         List<CodeMasterInfoVo> codeMasterInfoVoList = null;
         try {
-            requestVo = processHeader(headers);
+            // 헤더 정보에 대한 정의가 없기떄문에 임시로 try 감싸줌.
+            try {
+                requestVo = processHeader(headers);
 
-            LOGGER.debug(requestBody.toString());
+                LOGGER.debug(requestBody.toString());
+            }
+            catch(Exception e){
+//                e.printStackTrace();
+            }
 
             codeMasterInfoVoList = reqService.getCodeMasterInfo(requestBody);
 
@@ -261,7 +277,9 @@ public class ReqController {
         }
         finally {
             res.setHeader("MsgId", "TEST");
-            res.setHeader("NadId", requestVo.getNadId());
+            if ( requestVo != null ) {
+                res.setHeader("NadId", requestVo.getNadId());
+            }
         }
 
         return codeMasterInfoVoList;

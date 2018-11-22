@@ -4,7 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-public class RemoteControlResInfoVo implements Serializable {
+public class TcpRemoteControlResInfoVo implements Serializable {
     private String errCode;
 
     private String respTime;

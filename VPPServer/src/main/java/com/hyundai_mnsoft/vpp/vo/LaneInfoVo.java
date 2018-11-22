@@ -14,6 +14,8 @@ public class LaneInfoVo implements Serializable {
     private String laneType;
     private String manageType;
     private String laneStatus;
+    private String sectionId;
+    private String slotId;
 
     public String getLaneCode() {
         return laneCode;
@@ -85,6 +87,22 @@ public class LaneInfoVo implements Serializable {
 
     public void setLaneStatus(String laneStatus) {
         this.laneStatus = laneStatus;
+    }
+
+    public String getSectionId() {
+        return sectionId;
+    }
+
+    public void setSectionId(String sectionId) {
+        this.sectionId = sectionId;
+    }
+
+    public String getSlotId() {
+        return slotId;
+    }
+
+    public void setSlotId(String slotId) {
+        this.slotId = slotId;
     }
 
     @Override

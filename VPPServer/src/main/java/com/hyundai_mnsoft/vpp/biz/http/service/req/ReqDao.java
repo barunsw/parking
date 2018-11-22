@@ -7,8 +7,8 @@ import java.util.List;
 
 @Repository
 public interface ReqDao {
-    ParkingLotUseSearchVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo);
-    List<LaneInfoVo> getParkingLotUseLaneCodeList(ParkingLotUseSearchVo parkingLotUseSearchVo);
+    List<LaneInfoVo> getParkingLotInfo(ParkingLotReqVo parkingLotReqVo);
+//    List<LaneInfoVo> getParkingLotUseLaneCodeList(ParkingLotUseSearchVo parkingLotUseSearchVo);
     VehicleStatusInfoVo getVehicleStatusInfo(RequestVo requestVo);
     VehicleTraceInfoVo getVehicleTraceInfo(RequestVo requestVo);
 }
