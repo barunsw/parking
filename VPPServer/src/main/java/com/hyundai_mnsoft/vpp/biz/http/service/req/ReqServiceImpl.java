@@ -24,8 +24,8 @@ public class ReqServiceImpl implements ReqService {
         List<LaneInfoVo> laneInfoList = reqDao.getParkingLotInfo(parkingLotReqVo);
 
         // 전체 정보 갱신 ( 2018-11-12 수정 요청 사항)
-        controlServerService.reloadLaneInfoStatus();
-        controlServerService.reloadParkingUse();
+        controlServerService.reloadLaneInfoStatus(parkingLotReqVo.getParkingAreaID());
+        controlServerService.reloadParkingUse(parkingLotReqVo.getParkingAreaID());
 
 //        for ( LaneInfoVo laneInfoVo : laneInfoList ) {
 //            String laneCode = laneInfoVo.getLaneCode();

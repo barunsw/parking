@@ -15,6 +15,9 @@
 			   lane_type as 'laneType',
 			   manage_type as 'manageType',
 			   lane_status as 'laneStatus',
+			   car_status as 'carStatus',
+			   car_no as 'carNo',
+			   car_indate as 'carIndate',
 			   section_id as 'sectionId',
 			   slot_id as 'slotId'
 		FROM

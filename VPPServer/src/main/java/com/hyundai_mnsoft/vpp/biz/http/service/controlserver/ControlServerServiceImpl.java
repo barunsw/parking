@@ -29,18 +29,19 @@ public class ControlServerServiceImpl implements ControlServerService {
 
     private ControlServerUtil util = new ControlServerUtil();
 
-    public void reloadLaneInfoStatus() {
+    public void reloadLaneInfoStatus(String parkingAreaID) {
         try {
-            String result = util.getResFromControlServer("/main/laneinfo/status");
+            String result = util.getResFromControlServer(parkingAreaID, "/main/laneinfo/status", null);
 
-            LOGGER.debug(result);
+            if ( result.equals("") ) {
+                throw new Exception("관제서버 연동 에러.");
+            }
+//            LOGGER.debug(result);
 
             JSONParser parser = new JSONParser();
             Object resultJson = parser.parse(result);
 
             JSONObject jsonObj = (JSONObject) resultJson;
-
-            LOGGER.debug(jsonObj.get("laneInfoStatus"));
 
             List<JSONObject> laneInfoStatusList = (List<JSONObject>) jsonObj.get("laneInfoStatus");
 
@@ -49,52 +50,55 @@ public class ControlServerServiceImpl implements ControlServerService {
                 LOGGER.info(vo);
                 controlServerDao.insertParkingLotUseInfo(vo);
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ParkingLotUseInfoVo getLaneInfoStatus(String lane_code) {
-        try{
-            String param = "{\"lane_code\" : \"" + lane_code + "\"}";
-            String result = util.getResFromControlServer("/main/laneinfo/status", param);
+//    public ParkingLotUseInfoVo getLaneInfoStatus(String parkingAreaID, String lane_code) {
+//        try{
+//            String param = "{\"lane_code\" : \"" + lane_code + "\"}";
+//            String result = util.getResFromControlServer(parkingAreaID,"/main/laneinfo/status", param);
+//
+//            if ( result.equals("") ) {
+//                throw new Exception("관제서버 연동 에러.");
+//            }
+//            JSONParser parser = new JSONParser();
+//            Object resultJson = parser.parse(result);
+//
+//            JSONObject jsonObj = (JSONObject) resultJson;
+//
+//            List<JSONObject> laneInfoStatusList = (List<JSONObject>) jsonObj.get("laneInfoStatus");
+//
+//            ParkingLotUseInfoVo resultVo = gson.fromJson(laneInfoStatusList.get(0).toJSONString(), ParkingLotUseInfoVo.class);
+//
+//            controlServerDao.insertParkingLotUseInfo(resultVo);
+//
+//            // 정보 갱신 후 해당 내용 return.
+//
+//            return resultVo;
+//        }
+//        catch(Exception e){
+//            e.printStackTrace();
+//
+//            return null;
+//        }
+//    }
 
-            JSONParser parser = new JSONParser();
-            Object resultJson = parser.parse(result);
-
-            JSONObject jsonObj = (JSONObject) resultJson;
-
-            LOGGER.debug(jsonObj.get("laneInfoStatus"));
-
-            List<JSONObject> laneInfoStatusList = (List<JSONObject>) jsonObj.get("laneInfoStatus");
-
-            ParkingLotUseInfoVo resultVo = gson.fromJson(laneInfoStatusList.get(0).toJSONString(), ParkingLotUseInfoVo.class);
-
-            controlServerDao.insertParkingLotUseInfo(resultVo);
-
-            // 정보 갱신 후 해당 내용 return.
-
-            return resultVo;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-
-            return null;
-        }
-    }
-
-    public void reloadParkingUse() {
+    public void reloadParkingUse(String parkingAreaID) {
         try {
-            String result = util.getResFromControlServer("/main/parkinguse");
+            String result = util.getResFromControlServer(parkingAreaID,"/main/parkinguse", null);
 
-            LOGGER.debug(result);
+//            LOGGER.debug(result);
+
+            if ( result.equals("") ) {
+                throw new Exception("관제서버 연동 에러.");
+            }
 
             JSONParser parser = new JSONParser();
             Object resultJson = parser.parse(result);
 
             JSONObject jsonObj = (JSONObject) resultJson;
-
-            LOGGER.debug(jsonObj.get("laneInfoStatus"));
 
             List<JSONObject> parkingUseList = (List<JSONObject>) jsonObj.get("parkingUseSub");
 
@@ -104,7 +108,7 @@ public class ControlServerServiceImpl implements ControlServerService {
                 LOGGER.info(vo);
                 controlServerDao.insertParkingLotBDLVInfo(vo);
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -115,14 +119,16 @@ public class ControlServerServiceImpl implements ControlServerService {
             String param = "{\"code_group\" : \"" + codeMasterReqVo.getCode_group() + "\"," +
                     "\"code\" : \"" + codeMasterReqVo.getCode() + "\"" +
                     "}";
-            String result = util.getResFromControlServer("/manage/codemaster", param);
+            String result = util.getResFromControlServer(codeMasterReqVo.getParkingAreaID(), "/manage/codemaster", param);
+
+            if ( result.equals("") ) {
+                throw new Exception("관제서버 연동 에러.");
+            }
 
             JSONParser parser = new JSONParser();
             Object resultJson = parser.parse(result);
 
             JSONObject jsonObj = (JSONObject) resultJson;
-
-            LOGGER.debug(jsonObj.get("codeMasterSub"));
 
             List<JSONObject> codeMasterSub = (List<JSONObject>) jsonObj.get("codeMasterSub");
 

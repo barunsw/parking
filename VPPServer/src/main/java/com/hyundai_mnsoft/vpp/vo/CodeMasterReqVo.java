@@ -5,8 +5,18 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 public class CodeMasterReqVo implements Serializable {
+    private String parkingAreaID;
+
     private String code_group;
     private String code;
+
+    public String getParkingAreaID() {
+        return parkingAreaID;
+    }
+
+    public void setParkingAreaID(String parkingAreaID) {
+        this.parkingAreaID = parkingAreaID;
+    }
 
     public String getCode_group() {
         return code_group;
