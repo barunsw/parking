@@ -9,10 +9,11 @@ public class VehicleTraceInfoVo implements Serializable {
     private String Version;
     private String VIN;
     private String NadId;
+    private String MoId;
     private String gatherStartDate;
     private String gatherStartTime;
-    private int lon;
-    private int lat;
+    private String lon;
+    private String lat;
     private String heading;
     private String objStatic;
     private String objDynamic;
@@ -51,6 +52,14 @@ public class VehicleTraceInfoVo implements Serializable {
         NadId = nadId;
     }
 
+    public String getMoId() {
+        return MoId;
+    }
+
+    public void setMoId(String moId) {
+        MoId = moId;
+    }
+
     public String getGatherStartDate() {
         return gatherStartDate;
     }
@@ -67,19 +76,19 @@ public class VehicleTraceInfoVo implements Serializable {
         this.gatherStartTime = gatherStartTime;
     }
 
-    public int getLon() {
+    public String getLon() {
         return lon;
     }
 
-    public void setLon(int lon) {
+    public void setLon(String lon) {
         this.lon = lon;
     }
 
-    public int getLat() {
+    public String getLat() {
         return lat;
     }
 
-    public void setLat(int lat) {
+    public void setLat(String lat) {
         this.lat = lat;
     }
 

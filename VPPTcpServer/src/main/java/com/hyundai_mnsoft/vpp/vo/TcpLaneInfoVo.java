@@ -18,6 +18,8 @@ public class TcpLaneInfoVo implements Serializable {
     private String carStatus;
     private String carNo;
     private String carInDate;
+    private String sectionId;
+    private String slotId;
 
     public String getLaneCode() {
         return laneCode;
@@ -121,6 +123,22 @@ public class TcpLaneInfoVo implements Serializable {
 
     public void setCarInDate(String carInDate) {
         this.carInDate = carInDate;
+    }
+
+    public String getSectionId() {
+        return sectionId;
+    }
+
+    public void setSectionId(String sectionId) {
+        this.sectionId = sectionId;
+    }
+
+    public String getSlotId() {
+        return slotId;
+    }
+
+    public void setSlotId(String slotId) {
+        this.slotId = slotId;
     }
 
     @Override

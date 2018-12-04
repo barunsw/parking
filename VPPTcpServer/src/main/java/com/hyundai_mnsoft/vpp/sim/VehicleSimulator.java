@@ -51,7 +51,6 @@ public class VehicleSimulator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private static void loadProperties() throws Exception {

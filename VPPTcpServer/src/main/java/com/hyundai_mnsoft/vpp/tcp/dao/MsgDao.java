@@ -27,26 +27,12 @@ public class MsgDao {
         return resultList;
     }
 
-    public static int getCarLocationInfoCount(VehicleTraceInfoVo vehicleTraceInfoVo) {
+    public static void insertVehicleTraceInfo(VehicleTraceInfoVo vehicleTraceInfoVo) {
         SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
 
         int result = 0;
         try{
-            result = session.selectOne("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.getCarLocationInfoCount", vehicleTraceInfoVo);
-        }
-        finally{
-            session.close();
-        }
-
-        return result;
-    }
-
-    public static void insertCarLocationInfo(VehicleTraceInfoVo vehicleTraceInfoVo) {
-        SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
-
-        int result = 0;
-        try{
-            result = session.insert("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.insertCarLocationInfo", vehicleTraceInfoVo);
+            result = session.insert("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.insertVehicleTraceInfo", vehicleTraceInfoVo);
             session.commit();
         }
         catch (Exception ex) {
@@ -58,60 +44,12 @@ public class MsgDao {
         }
     }
 
-    public static void updateCarLocationInfo(VehicleTraceInfoVo vehicleTraceInfoVo) {
+    public static void insertVehicleStatusInfo(VehicleStatusInfoVo vehicleStatusInfoVo) {
         SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
 
         int result = 0;
         try{
-            result = session.update("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.updateCarLocationInfo", vehicleTraceInfoVo);
-            session.commit();
-        }
-        catch (Exception ex) {
-            session.rollback();
-            LOGGER.error(ex.getMessage(), ex);
-        }
-        finally{
-            session.close();
-        }
-    }
-
-    public static int getCarStatusInfoCount(VehicleStatusInfoVo vehicleStatusInfoVo) {
-        SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
-
-        int result = 0;
-        try{
-            result = session.selectOne("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.getCarStatusInfoCount", vehicleStatusInfoVo);
-        }
-        finally{
-            session.close();
-        }
-
-        return result;
-    }
-
-    public static void insertCarStatusInfo(VehicleStatusInfoVo vehicleStatusInfoVo) {
-        SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
-
-        int result = 0;
-        try{
-            result = session.insert("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.insertCarStatusInfo", vehicleStatusInfoVo);
-            session.commit();
-        }
-        catch (Exception ex) {
-            session.rollback();
-            LOGGER.error(ex.getMessage(), ex);
-        }
-        finally{
-            session.close();
-        }
-    }
-
-    public static void updateCarStatusInfo(VehicleStatusInfoVo vehicleStatusInfoVo) {
-        SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
-
-        int result = 0;
-        try{
-            result = session.update("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.updateCarStatusInfo", vehicleStatusInfoVo);
+            result = session.insert("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.insertVehicleStatusInfo", vehicleStatusInfoVo);
             session.commit();
         }
         catch (Exception ex) {

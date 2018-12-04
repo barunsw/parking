@@ -254,7 +254,7 @@ public class SimMsgService extends CommonUtil {
                             temp = ByteBuffer.allocate(2).putShort(
                                     Short.parseShort(metaMap.get(msgMetaVo.getFieldName()).toString())).array();
 
-                            LOGGER.error(String.valueOf(byteToShort(temp)));
+                            LOGGER.debug(String.valueOf(byteArrayToShort(temp)));
                         }
                         break;
                     case "byte":
@@ -267,7 +267,7 @@ public class SimMsgService extends CommonUtil {
                         }
 
                         if (metaMap.get(msgMetaVo.getFieldName()) == null) {
-                            LOGGER.error("NULL " + msgMetaVo.getFieldName());
+                            LOGGER.info("NULL " + msgMetaVo.getFieldName());
 
                             if ( msgMetaVo.getColReqType().equals("O") ) {
                                 temp = new byte[colLength];

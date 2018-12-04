@@ -178,6 +178,7 @@ public class SendTester {
                 bodyMap.put("reqTime", "20181013183000");
                 bodyMap.put("lon", 45729593);
                 bodyMap.put("lat", 13498484);
+                bodyMap.put("parkingAreaID", "01");
             }
             else if ( msgId == VPP_002 ) {
                 bodyMap.put("gatherStartDate", "20181015");
@@ -357,6 +358,9 @@ public class SendTester {
         List<Map> list = new ArrayList<>();
 
         for ( int i = 0; i < listSize; i++ ) {
+
+            LOGGER.info("@@@@@ Parsing One of List @@@@@");
+
             Map listInfoMap = new HashMap();
             int variableColLength = 0;
 
@@ -366,7 +370,7 @@ public class SendTester {
 
                 if (msgMetaVo.getColLength() == 0) {
                     msgMetaVo.setColLength(variableColLength);
-                    LOGGER.debug(variableColLength);
+//                    LOGGER.debug(variableColLength);
                 }
 
                 byte[] colValue = new byte[msgMetaVo.getColLength()];
@@ -425,14 +429,11 @@ public class SendTester {
     }
 
     public static int byteToShort(byte[] bytes) {
-
-        LOGGER.warn((int)bytes[0]);
-        LOGGER.warn((int)bytes[1]);
-
-
         int newValue = 0;
         newValue |= (((int)bytes[0])<<8)&0xFF00;
         newValue |= (((int)bytes[1]))&0xFF;
+
+//        LOGGER.warn(newValue);
 
         return newValue;
     }

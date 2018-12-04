@@ -3,7 +3,7 @@ package com.hyundai_mnsoft.vpp.tcp.server;
 import com.hyundai_mnsoft.vpp.tcp.dao.MsgDao;
 import com.hyundai_mnsoft.vpp.vo.MsgMetaSearchVo;
 import com.hyundai_mnsoft.vpp.vo.MsgMetaVo;
-import com.hyundai_mnsoft.vpp.vo.RemoteControlResInfoVo;
+import com.hyundai_mnsoft.vpp.vo.TcpRemoteControlResInfoVo;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -20,9 +20,9 @@ public class MsgSender extends CommonUtil {
     private String vehicle_ip = TcpServer.props.getProperty("vehicle.ip");
     private int vehicle_port = Integer.parseInt(TcpServer.props.getProperty("vehicle.port"));
 
-    public RemoteControlResInfoVo sendMsgViaRMI(int msgId, Map headerMap, Map bodyMap) {
+    public TcpRemoteControlResInfoVo sendMsgViaRMI(int msgId, Map headerMap, Map bodyMap) {
         byte[] msg = makeMsg(msgId, headerMap, bodyMap);
-        return sendMsgViaRMI(msg);
+        return sendProcess(msg);
     }
 
     private byte[] makeMsg(int msgId, Map headerMap, Map bodyMap) {
@@ -33,8 +33,6 @@ public class MsgSender extends CommonUtil {
 
         try {
             baos = new ByteArrayOutputStream();
-
-//            MsgService.makeMsgByteStream(msgId, baos, msgHeaderInfo, headerMap);
 
             //Body를 먼저 만들고 헤더 생성.
             byte[] msgBody = makeMsgBody(msgId, 0, bodyMap);
@@ -79,9 +77,9 @@ public class MsgSender extends CommonUtil {
         return baos.toByteArray();
     }
 
-    private RemoteControlResInfoVo sendMsgViaRMI(byte[] msg) {
+    private TcpRemoteControlResInfoVo sendProcess(byte[] msg) {
 //        int result = 0;
-        RemoteControlResInfoVo remoteControlResInfoVo = new RemoteControlResInfoVo();
+        TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = new TcpRemoteControlResInfoVo();
 
         //Socket 통해서 메시지 발송 후 코드 return.
         Socket socket = null;
@@ -135,7 +133,7 @@ public class MsgSender extends CommonUtil {
 
                         break;
                     case "short_int":
-                        int s = byteToShort(colValue);
+                        int s = byteArrayToShort(colValue);
                         LOGGER.info(msgMetaVo.getFieldName() + " | " + s);
                         headerMap.put(msgMetaVo.getFieldName(), s);
                         break;
@@ -171,15 +169,15 @@ public class MsgSender extends CommonUtil {
             is.close();
             dis.close();
 
-            LOGGER.error(headerMap.toString());
-            LOGGER.error(bodyMap.toString());
+            LOGGER.debug(headerMap.toString());
+            LOGGER.debug(bodyMap.toString());
 
-            remoteControlResInfoVo.setErrCode(headerMap.get("ErrCode").toString());
+            tcpRemoteControlResInfoVo.setErrCode(headerMap.get("ErrCode").toString());
             if ( bodyMap.get("respTime") != null ) {
-                remoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
+                tcpRemoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
             }
             if ( bodyMap.get("routeData") != null ) {
-                remoteControlResInfoVo.setRouteData(bodyMap.get("routeData").toString());
+                tcpRemoteControlResInfoVo.setRouteData(bodyMap.get("routeData").toString());
             }
 
 //            result = Integer.parseInt(headerMap.get("errCode").toString());
@@ -187,7 +185,7 @@ public class MsgSender extends CommonUtil {
         } catch (IOException e) {
             e.printStackTrace();
 
-            remoteControlResInfoVo.setErrCode("1");
+            tcpRemoteControlResInfoVo.setErrCode("1");
         }
         finally {
             try {
@@ -197,6 +195,6 @@ public class MsgSender extends CommonUtil {
             }
         }
 
-        return remoteControlResInfoVo;
+        return tcpRemoteControlResInfoVo;
     }
 }

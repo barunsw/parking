@@ -9,6 +9,14 @@
 			<param name="ConversionPattern" value="[%5p] %t|(%d{yyyy-MM-dd HH:mm:ss})|%c(%L)|%m%n" />
 		</layout>
 	</appender>
+
+	<appender name="rollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="logs/TcpServer.log"/>
+		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%5p] %t|(%d{yyyy-MM-dd HH:mm:ss})|%c(%L)|%m%n" />
+		</layout>
+	</appender>
 	
 	<!-- Application Loggers -->
 	<logger name="com.hyundai_mnsoft.vpp">
@@ -43,6 +51,7 @@
 	<root>
 		<priority value="debug" />
 		<appender-ref ref="console" />
+		<appender-ref ref="rollingFile" />
 	</root>
 	
 </log4j:configuration>

@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.registry.LocateRegistry;
@@ -40,7 +41,7 @@ public class TcpServer {
                     Socket socket = serverSocket.accept();
                     socket.setSoTimeout(3000);
 
-                    LOGGER.debug(">> Socket Accepted");
+                    LOGGER.debug("\n>> Socket Accepted\n>>");
 
                     try{
                         threadPool.execute(new ConnectionWrap(socket));
@@ -107,10 +108,19 @@ class ConnectionWrap implements Runnable {
         try{
             msgService.processMsg(socket);
 
-            socket.close();
+
+//            socket.close();
         }
         catch(Exception e){
             e.printStackTrace();
+        }
+        finally {
+            try {
+                socket.close();
+                LOGGER.debug("\n>> Socket Closed\n>>");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -49,14 +49,14 @@ public class MsgService extends CommonUtil{
                 headerLength += msgMetaVo.getColLength();
             }
 
-            LOGGER.info(String.valueOf(headerLength));
+//            LOGGER.debug(String.valueOf(headerLength));
             byte[] headerBuffer = new byte[headerLength];
 
             dis.read(headerBuffer);
 
             int startPos = 0;
 
-            LOGGER.info("@@@@@ Parsing Start @@@@@");
+            LOGGER.debug("@@@@@ Parsing Start @@@@@");
 
             getMsgData(headerMap, headerBuffer, msgHeaderInfo, startPos);
 
@@ -77,15 +77,14 @@ public class MsgService extends CommonUtil{
                 getMsgData(bodyMap, bodyBuffer, msgBodyInfo, startPos);
             }
 
-            LOGGER.info("@@@@@ End of Parse @@@@@");
+            LOGGER.debug("@@@@@ End of Parse @@@@@");
 
-            LOGGER.info(headerMap.toString());
-            LOGGER.info(bodyMap.toString());
+            LOGGER.debug(headerMap.toString());
+            LOGGER.debug(bodyMap.toString());
 
             int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
 
             headerMap.put("ErrCode", new BigInteger("00000000", 16));
-
 
             //DB 작업
             if ( msgId == VPP_001 ) {
@@ -106,6 +105,8 @@ public class MsgService extends CommonUtil{
 
             dos.write(resMsg);
             dos.flush();
+
+            LOGGER.debug("Response Sent.");
         }
         catch(Exception e){
             e.printStackTrace();
@@ -135,11 +136,13 @@ public class MsgService extends CommonUtil{
 
             System.arraycopy(headerBuffer, startPos, colValue, 0, msgMetaVo.getColLength());
 
+            LOGGER.debug(bytesToHex(colValue));
+
             switch (msgMetaVo.getColType()) {
                 case "u_int":
                     BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
 
-                    LOGGER.info(msgMetaVo.getFieldName() + " | " + k);
+                    LOGGER.debug(msgMetaVo.getFieldName() + " | " + k);
 
                     dataMap.put(msgMetaVo.getFieldName(), k);
                     break;
@@ -149,7 +152,7 @@ public class MsgService extends CommonUtil{
 
                     Short s = byteBuffer.getShort();
 
-                    LOGGER.info(msgMetaVo.getFieldName() + " | " + s);
+                    LOGGER.debug(msgMetaVo.getFieldName() + " | " + s);
 
                     if (msgMetaVo.getColWorkType().equals("L")) {
                         variableColLength = s;
@@ -159,7 +162,7 @@ public class MsgService extends CommonUtil{
                 case "char":
                     String str = new String(colValue, StandardCharsets.UTF_8);
 
-                    LOGGER.info(msgMetaVo.getFieldName() + " | " + str.trim());
+                    LOGGER.debug(msgMetaVo.getFieldName() + " | " + str.trim());
 
                     dataMap.put(msgMetaVo.getFieldName(), str.trim());
                     break;
@@ -169,6 +172,9 @@ public class MsgService extends CommonUtil{
     }
 
     public byte[] makeResponseMsg(int msgId, Map reqHeaderMap, Map reqBodyMap) {
+
+        LOGGER.debug("Make Response Message.");
+
         int msgType = 1;
         // response message 발송 시 사용
         MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, msgType);
@@ -186,10 +192,14 @@ public class MsgService extends CommonUtil{
                 // 주차장 정보
                 // DB 조회 후 정보 담기.
                 TcpParkingLotReqVo tcpParkingLotReqVo = new TcpParkingLotReqVo();
-                tcpParkingLotReqVo.setLat(Integer.parseInt(reqBodyMap.get("lat").toString()));
-                tcpParkingLotReqVo.setLon(Integer.parseInt(reqBodyMap.get("lon").toString()));
+                tcpParkingLotReqVo.setLat(reqBodyMap.get("lat").toString());
+                tcpParkingLotReqVo.setLon(reqBodyMap.get("lon").toString());
+                tcpParkingLotReqVo.setReqTime(reqBodyMap.get("reqTime").toString());
+                tcpParkingLotReqVo.setParkingLotID(reqBodyMap.get("parkingAreaID").toString());
 
                 TcpParkingLotResVo tcpParkingLotResVo = RmiControl.getParkingLotInfo(tcpParkingLotReqVo);
+
+                LOGGER.debug("tcpParkingLotResVo\n" + tcpParkingLotResVo.toString());
 
                 resBodyMap.put("parkingLotNo", tcpParkingLotResVo.getParkingLotNo());
                 resBodyMap.put("parkingLotNM", tcpParkingLotResVo.getParkingLotNm());
@@ -256,10 +266,12 @@ public class MsgService extends CommonUtil{
         for (MsgMetaVo msgMetaVo : msgMetaInfo) {
             int colLength = msgMetaVo.getColLength();
             String fieldValue = "";
-            LOGGER.info(msgMetaVo.getFieldName());
+            LOGGER.debug(msgMetaVo.getFieldName());
 
             switch (msgMetaVo.getColType()) {
                 case "u_int":
+                    LOGGER.debug(metaMap.get(msgMetaVo.getFieldName()).toString());
+
                     if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
                         temp = new byte[colLength];
                     }
@@ -269,7 +281,7 @@ public class MsgService extends CommonUtil{
                     }
                     break;
                 case "short_int":
-                    LOGGER.warn(metaMap.get(msgMetaVo.getFieldName()).toString());
+                    LOGGER.debug(metaMap.get(msgMetaVo.getFieldName()).toString());
 
                     if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
                         temp = new byte[colLength];
@@ -277,8 +289,6 @@ public class MsgService extends CommonUtil{
                     else {
                         temp = ByteBuffer.allocate(2).putShort(
                                 Short.parseShort(metaMap.get(msgMetaVo.getFieldName()).toString())).array();
-
-                        LOGGER.error(String.valueOf(byteToShort(temp)));
                     }
                     break;
                 case "byte":
@@ -291,7 +301,7 @@ public class MsgService extends CommonUtil{
                     }
 
                     if (metaMap.get(msgMetaVo.getFieldName()) == null) {
-                        LOGGER.error("NULL " + msgMetaVo.getFieldName());
+                        LOGGER.debug("NULL (" + msgMetaVo.getFieldName() + ")");
 
                         if ( msgMetaVo.getColReqType().equals("O") ) {
                             temp = new byte[colLength];
@@ -309,7 +319,7 @@ public class MsgService extends CommonUtil{
                             appendNullFlag = true;
                         }
 
-                        LOGGER.warn(metaMap.get(msgMetaVo.getFieldName()).toString());
+                        LOGGER.debug(metaMap.get(msgMetaVo.getFieldName()).toString());
                     }
                     break;
             }
@@ -340,24 +350,34 @@ public class MsgService extends CommonUtil{
 
         try {
             for (TcpLaneInfoVo tcpLaneInfoVo : list) {
+
+                LOGGER.debug(tcpLaneInfoVo.toString());
+
                 Map tcpLaneInfoMap = new HashMap();
                 tcpLaneInfoMap.put("laneCode", tcpLaneInfoVo.getLaneCode());
                 tcpLaneInfoMap.put("parkingLotNo", tcpLaneInfoVo.getParkingLotNo());
                 tcpLaneInfoMap.put("parkingLevelCode", tcpLaneInfoVo.getParkingLevelCode());
                 tcpLaneInfoMap.put("parkingZoneCode", tcpLaneInfoVo.getParkingZoneCode());
                 tcpLaneInfoMap.put("laneSeqNum", tcpLaneInfoVo.getLaneSeqNum());
-                tcpLaneInfoMap.put("laneNameLen", tcpLaneInfoVo.getLaneNameLen());
+                tcpLaneInfoMap.put("laneNameLen", tcpLaneInfoVo.getLaneName().getBytes().length);
                 tcpLaneInfoMap.put("laneName", tcpLaneInfoVo.getLaneName());
                 tcpLaneInfoMap.put("laneType", tcpLaneInfoVo.getLaneType());
                 tcpLaneInfoMap.put("manageType", tcpLaneInfoVo.getManageType());
                 tcpLaneInfoMap.put("laneStatus", tcpLaneInfoVo.getLaneStatus());
-                tcpLaneInfoMap.put("carStatus", "1");
-                tcpLaneInfoMap.put("carNo", "1");
-                tcpLaneInfoMap.put("carInDate", "1");
+                tcpLaneInfoMap.put("sectionId", tcpLaneInfoVo.getSectionId());
+                tcpLaneInfoMap.put("slotId", tcpLaneInfoVo.getSlotId());
+                tcpLaneInfoMap.put("carStatus", tcpLaneInfoVo.getCarStatus());
 
+//                tcpLaneInfoMap.put("carNo", tcpLaneInfoVo.getCarNo());
+                tcpLaneInfoMap.put("carNo", "0");
+
+                tcpLaneInfoMap.put("carInDate", tcpLaneInfoVo.getCarInDate());
+
+                LOGGER.debug("@@@@@ Append One to List @@@@@");
                 makeMsgByteStream(baos, arrayMetaInfo, tcpLaneInfoMap);
 
-                LOGGER.info(tcpLaneInfoMap.toString());
+                LOGGER.debug("@@@@@ End of List @@@@@");
+//                LOGGER.debug(tcpLaneInfoMap.toString());
             }
         }
         catch(Exception e){
@@ -375,24 +395,19 @@ public class MsgService extends CommonUtil{
             vo.setVersion(headerMap.get("Version").toString());
             vo.setVIN(headerMap.get("VIN").toString());
             vo.setNadId(headerMap.get("NadId").toString());
+
+            // 고정값
+            vo.setMoId("01012341234");
+
             vo.setGatherStartDate(bodyMap.get("gatherStartDate").toString());
             vo.setGatherStartTime(bodyMap.get("gatherStartTime").toString());
-            vo.setLon(Integer.parseInt(bodyMap.get("lon").toString()));
-            vo.setLat(Integer.parseInt(bodyMap.get("lat").toString()));
+            vo.setLon(bodyMap.get("lon").toString());
+            vo.setLat(bodyMap.get("lat").toString());
             vo.setHeading(bodyMap.get("heading").toString());
             vo.setObjStatic(bodyMap.get("objStatic").toString());
             vo.setObjDynamic(bodyMap.get("objDynamic").toString());
 
-            int count = MsgDao.getCarLocationInfoCount(vo);
-
-            LOGGER.info(String.valueOf(count));
-
-            if ( count == 0 ) {
-                MsgDao.insertCarLocationInfo(vo);
-            }
-            else {
-                MsgDao.updateCarLocationInfo(vo);
-            }
+            MsgDao.insertVehicleTraceInfo(vo);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -413,26 +428,23 @@ public class MsgService extends CommonUtil{
             vo.setVIN(headerMap.get("VIN").toString());
             vo.setNadId(headerMap.get("NadId").toString());
 
+            // 고정값
+            vo.setMoId("01012341234");
+
             vo.setDrivingStatus(bodyMap.get("drivingStatus").toString());
             vo.setDoorOpen(bodyMap.get("doorOpen").toString());
             vo.setEngineStatus(bodyMap.get("engineStatus").toString());
             vo.setTransmission(bodyMap.get("transmission").toString());
             vo.setVelocity(bodyMap.get("velocity").toString());
+            vo.setSteering(bodyMap.get("steering").toString());
+            vo.setControl(bodyMap.get("control").toString());
+
 //            vo.setSteering(bodyMap.get("").toString());
 //            vo.setControl(bodyMap.get("").toString());
 //            vo.setUseType(bodyMap.get("").toString());
 //            vo.setInOut(bodyMap.get("").toString());
 
-            int count = MsgDao.getCarStatusInfoCount(vo);
-
-            LOGGER.info(String.valueOf(count));
-
-            if ( count == 0 ) {
-                MsgDao.insertCarStatusInfo(vo);
-            }
-            else {
-                MsgDao.updateCarStatusInfo(vo);
-            }
+            MsgDao.insertVehicleStatusInfo(vo);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -441,5 +453,4 @@ public class MsgService extends CommonUtil{
 
         return result;
     }
-
 }

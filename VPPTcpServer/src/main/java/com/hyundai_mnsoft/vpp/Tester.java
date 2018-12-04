@@ -1,15 +1,16 @@
 package com.hyundai_mnsoft.vpp;
 
+import java.math.BigInteger;
+
 public class Tester {
 
     public static void main(String[] args) {
-//        MsgSender msgSender = new MsgSender();
+        byte[] a = {0x00, 0x00, 0x00, 0x30, 0x2E, 0x30, 0x2E, 0x31};
 
-//        msgSender.sendMsgViaRMI(16781315);
+        System.out.println(new String(a));
 
-        char[] a = {'1'};
-
-        System.out.println(new String(a).getBytes().length);
+        BigInteger i = new BigInteger("0E000011", 16);
+        System.out.println(i);
     }
 
 //    public static void main(String[] args) {

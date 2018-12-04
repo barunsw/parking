@@ -10,6 +10,7 @@ public class VehicleStatusInfoVo implements Serializable {
     private String Version;
     private String VIN;
     private String NadId;
+    private String MoId;
     private String drivingStatus;
     private String doorOpen;
     private String engineStatus;
@@ -53,6 +54,14 @@ public class VehicleStatusInfoVo implements Serializable {
 
     public void setNadId(String nadId) {
         NadId = nadId;
+    }
+
+    public String getMoId() {
+        return MoId;
+    }
+
+    public void setMoId(String moId) {
+        MoId = moId;
     }
 
     public String getDrivingStatus() {

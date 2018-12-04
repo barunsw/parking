@@ -2,8 +2,8 @@ package com.hyundai_mnsoft.vpp.tcp.server;
 
 import com.hyundai_mnsoft.vpp.rmi.TcpServerInterface;
 import com.hyundai_mnsoft.vpp.vo.RemoteControlReqInfoVo;
-import com.hyundai_mnsoft.vpp.vo.RemoteControlResInfoVo;
 import com.hyundai_mnsoft.vpp.vo.RequestVo;
+import com.hyundai_mnsoft.vpp.vo.TcpRemoteControlResInfoVo;
 import org.apache.log4j.Logger;
 
 import java.rmi.RemoteException;
@@ -30,18 +30,16 @@ public class TcpServerImpl extends UnicastRemoteObject implements TcpServerInter
     }
 
     @Override
-    public RemoteControlResInfoVo sendVpp004Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
+    public TcpRemoteControlResInfoVo sendVpp004Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
         return sendMsg(requestVo, remoteControlReqInfoVo, VPP_004);
     }
 
     @Override
-    public RemoteControlResInfoVo sendVpp005Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
+    public TcpRemoteControlResInfoVo sendVpp005Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
         return sendMsg(requestVo, remoteControlReqInfoVo, VPP_005);
     }
 
-    private RemoteControlResInfoVo sendMsg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo, int msgId) throws RemoteException {
-        LOGGER.info("Hello");
-
+    private TcpRemoteControlResInfoVo sendMsg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo, int msgId) throws RemoteException {
         Map headerMap = makeHeaderMap(msgId, requestVo);
         Map bodyMap = makeBodyMap(remoteControlReqInfoVo);
 
