@@ -14,13 +14,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// ### 메시지 발송 시 사용.
 public class MsgSender extends CommonUtil {
     private static Logger LOGGER = Logger.getLogger(MsgSender.class);
 
+    // 차량 연결 정보.
     private String vehicle_ip = TcpServer.props.getProperty("vehicle.ip");
     private int vehicle_port = Integer.parseInt(TcpServer.props.getProperty("vehicle.port"));
 
+    // RMI를 통해 메시지를 발송 할 때에 호출됨.
     public TcpRemoteControlResInfoVo sendMsgViaRMI(int msgId, Map headerMap, Map bodyMap) {
+        // 메시지 생성 후 send.
         byte[] msg = makeMsg(msgId, headerMap, bodyMap);
         return sendProcess(msg);
     }
@@ -34,8 +38,9 @@ public class MsgSender extends CommonUtil {
         try {
             baos = new ByteArrayOutputStream();
 
-            //Body를 먼저 만들고 헤더 생성.
+            // 메시지 Body를 먼저 만들고 Header 생성.
             byte[] msgBody = makeMsgBody(msgId, 0, bodyMap);
+            // headerMap에 길이 정보 추가.
             headerMap.put("BodyLen", msgBody.length);
             MsgService.makeMsgByteStream(baos, msgHeaderInfo, headerMap);
             baos.write(msgBody);
@@ -55,14 +60,17 @@ public class MsgSender extends CommonUtil {
         return baos.toByteArray();
     }
 
+    // 메시지 Body 생성.
     private byte[] makeMsgBody(int msgId, int msgType, Map bodyMap) {
         ByteArrayOutputStream baos = null;
         try {
+            // 메시지 Meta 정보 열람 후 List에 저장.
             MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, msgType);
             List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
             baos = new ByteArrayOutputStream();
 
+            // 메시지 Meta 정보 토대로 메시지 Stream 생성.
             MsgService.makeMsgByteStream(baos, msgBodyInfo, bodyMap);
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,13 +86,13 @@ public class MsgSender extends CommonUtil {
     }
 
     private TcpRemoteControlResInfoVo sendProcess(byte[] msg) {
-//        int result = 0;
         TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = new TcpRemoteControlResInfoVo();
 
         //Socket 통해서 메시지 발송 후 코드 return.
         Socket socket = null;
 
         try {
+            LOGGER.debug("Establishing Connection..." + vehicle_ip + "/" + vehicle_port);
             socket = new Socket(vehicle_ip, vehicle_port);
 
             OutputStream os = socket.getOutputStream();
@@ -93,9 +101,13 @@ public class MsgSender extends CommonUtil {
             InputStream is = socket.getInputStream();
             DataInputStream dis = new DataInputStream(is);
 
+            LOGGER.debug("msg flush.");
             dos.write(msg);
             dos.flush();
 
+            LOGGER.debug(msg.length);
+
+            // 응답 메시지 Meta 정보
             MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 1);
             List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
@@ -115,6 +127,8 @@ public class MsgSender extends CommonUtil {
             Map headerMap = new HashMap();
             Map bodyMap = new HashMap();
             int bodyLen = 0;
+
+            LOGGER.debug("\n>>> Receive Response Msg");
 
             for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
                 byte[] colValue = new byte[msgMetaVo.getColLength()];
@@ -148,6 +162,7 @@ public class MsgSender extends CommonUtil {
                 startPos += msgMetaVo.getColLength();
             }
 
+            // Body 부분이 존재할 경우 데이터 읽어옴.
             if ( bodyLen > 0 ) {
                 byte[] bodyBuffer = new byte[bodyLen];
                 int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
@@ -163,6 +178,7 @@ public class MsgSender extends CommonUtil {
             }
 
             LOGGER.debug("End of Parse.");
+            LOGGER.debug("\nResponse Msg Ends.");
 
             os.close();
             dos.close();
@@ -173,25 +189,36 @@ public class MsgSender extends CommonUtil {
             LOGGER.debug(bodyMap.toString());
 
             tcpRemoteControlResInfoVo.setErrCode(headerMap.get("ErrCode").toString());
-            if ( bodyMap.get("respTime") != null ) {
-                tcpRemoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
+
+            try {
+                if ( bodyMap.get("respTime") != null ) {
+                    tcpRemoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
+                }
             }
-            if ( bodyMap.get("routeData") != null ) {
-                tcpRemoteControlResInfoVo.setRouteData(bodyMap.get("routeData").toString());
+            catch(Exception ignored){
             }
 
-//            result = Integer.parseInt(headerMap.get("errCode").toString());
+            try {
+                if ( bodyMap.get("routeData") != null ) {
+                    byte[] routeData_byteArr = (byte[]) bodyMap.get("routeData");
+                    tcpRemoteControlResInfoVo.setRouteData(routeData_byteArr);
+                }
+            }
+            catch(Exception ignored){
+            }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
             tcpRemoteControlResInfoVo.setErrCode("1");
         }
         finally {
             try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Socket == null !");
             }
         }
 

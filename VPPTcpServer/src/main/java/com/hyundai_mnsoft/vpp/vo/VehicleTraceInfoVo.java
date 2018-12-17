@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 차량 위치정보 Vo.
 public class VehicleTraceInfoVo implements Serializable {
     private String ServiceId;
     private String Version;

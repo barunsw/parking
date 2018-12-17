@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// ### 메시지 송/수신 처리를 함.
 public class MsgService extends CommonUtil{
     private static Logger LOGGER = Logger.getLogger(MsgService.class);
 
@@ -40,7 +41,7 @@ public class MsgService extends CommonUtil{
             os = socket.getOutputStream();
             dos = new DataOutputStream(os);
 
-            // 헤더 정보 열람
+            // Header 정보 열람
             MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 0);
             List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
@@ -49,7 +50,6 @@ public class MsgService extends CommonUtil{
                 headerLength += msgMetaVo.getColLength();
             }
 
-//            LOGGER.debug(String.valueOf(headerLength));
             byte[] headerBuffer = new byte[headerLength];
 
             dis.read(headerBuffer);
@@ -68,7 +68,7 @@ public class MsgService extends CommonUtil{
 
                 dis.read(bodyBuffer);
 
-                // 헤더 정보 열람
+                // Header 정보 열람
                 msgMetaSearchVo = new MsgMetaSearchVo(msgId, 0);
                 List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
 
@@ -86,14 +86,16 @@ public class MsgService extends CommonUtil{
 
             headerMap.put("ErrCode", new BigInteger("00000000", 16));
 
-            //DB 작업
+            // DB 작업
             if ( msgId == VPP_001 ) {
 
             }
             else if ( msgId == VPP_002 ) {
+                // 차량 위치 정보 갱신 (DB)
                 result = processVehicleTraceInfo(headerMap, bodyMap);
             }
             else if ( msgId == VPP_003 ) {
+                // 차량 상태 정보 갱신 (DB)
                 result = processVehicleStatusInfo(headerMap, bodyMap);
             }
             else {
@@ -101,6 +103,7 @@ public class MsgService extends CommonUtil{
                 headerMap.put("ErrCode", new BigInteger("0E000011", 16));
             }
 
+            // 응답 메시지 생성 및 전송.
             byte[] resMsg = makeResponseMsg(msgId, headerMap, bodyMap);
 
             dos.write(resMsg);
@@ -124,6 +127,7 @@ public class MsgService extends CommonUtil{
         return result;
     }
 
+    // 메시지 buffer를 Meta정보에 맞추어 자르고 활용 가능한 데이터로 변환.
     public static void getMsgData(Map dataMap, byte[] headerBuffer, List<MsgMetaVo> msgHeaderInfo, int startPos) {
         int variableColLength = 0;
         for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
@@ -136,7 +140,7 @@ public class MsgService extends CommonUtil{
 
             System.arraycopy(headerBuffer, startPos, colValue, 0, msgMetaVo.getColLength());
 
-            LOGGER.debug(bytesToHex(colValue));
+            LOGGER.debug(byteArrayToHex(colValue));
 
             switch (msgMetaVo.getColType()) {
                 case "u_int":
@@ -145,6 +149,11 @@ public class MsgService extends CommonUtil{
                     LOGGER.debug(msgMetaVo.getFieldName() + " | " + k);
 
                     dataMap.put(msgMetaVo.getFieldName(), k);
+
+                    if (msgMetaVo.getColWorkType().equals("L")) {
+                        variableColLength = k.intValue();
+                    }
+
                     break;
                 case "short_int":
                     ByteBuffer byteBuffer = ByteBuffer.allocate(2);
@@ -166,11 +175,16 @@ public class MsgService extends CommonUtil{
 
                     dataMap.put(msgMetaVo.getFieldName(), str.trim());
                     break;
+                case "Binary":
+                    dataMap.put(msgMetaVo.getFieldName(), colValue);
+
+                    break;
             }
             startPos += msgMetaVo.getColLength();
         }
     }
 
+    // 응답 메시지 생성.
     public byte[] makeResponseMsg(int msgId, Map reqHeaderMap, Map reqBodyMap) {
 
         LOGGER.debug("Make Response Message.");
@@ -185,18 +199,19 @@ public class MsgService extends CommonUtil{
         try {
             baos = new ByteArrayOutputStream();
 
-            //bodyMap을 채워주는 작업
+            // bodyMap을 채워주는 작업
             Map resBodyMap = new HashMap();
 
             if ( msgId == VPP_001 ) {
                 // 주차장 정보
-                // DB 조회 후 정보 담기.
+                // RMI를 통해 HTTP Server 에서 DB 조회 후 정보 담기.
                 TcpParkingLotReqVo tcpParkingLotReqVo = new TcpParkingLotReqVo();
                 tcpParkingLotReqVo.setLat(reqBodyMap.get("lat").toString());
                 tcpParkingLotReqVo.setLon(reqBodyMap.get("lon").toString());
                 tcpParkingLotReqVo.setReqTime(reqBodyMap.get("reqTime").toString());
                 tcpParkingLotReqVo.setParkingLotID(reqBodyMap.get("parkingAreaID").toString());
 
+                // RMI를 통해 HTTP Server 에서 정보를 받아옴.
                 TcpParkingLotResVo tcpParkingLotResVo = RmiControl.getParkingLotInfo(tcpParkingLotReqVo);
 
                 LOGGER.debug("tcpParkingLotResVo\n" + tcpParkingLotResVo.toString());
@@ -217,9 +232,12 @@ public class MsgService extends CommonUtil{
                 // bodyMap 작업 불필요
             }
 
-            //Body를 먼저 만들고 헤더 생성.
+            // Body를 먼저 만들고 Header 생성.
             byte[] msgBody = makeMsgBody(msgId, msgType, resBodyMap);
+            // Body의 길이를 Header 정보에 추가.
             reqHeaderMap.put("BodyLen", msgBody.length);
+            // Header 정보를 먼저 쓴 후에
+            // Body 정보를 write 해줌.
             makeMsgByteStream(baos, msgHeaderInfo, reqHeaderMap);
             baos.write(msgBody);
         }
@@ -234,9 +252,11 @@ public class MsgService extends CommonUtil{
             }
         }
 
+        // 작업 후의 buffer를 전달.
         return baos.toByteArray();
     }
 
+    // 메시지 Body를 생성함.
     private static byte[] makeMsgBody(int msgId, int msgType, Map bodyMap) {
         ByteArrayOutputStream baos = null;
 
@@ -246,6 +266,7 @@ public class MsgService extends CommonUtil{
 
             baos = new ByteArrayOutputStream();
 
+            // 메시지 Body stream 생성.
             makeMsgByteStream(baos, msgBodyInfo, bodyMap);
         } catch (Exception e) {
             e.printStackTrace();
@@ -261,6 +282,7 @@ public class MsgService extends CommonUtil{
 
     public static void makeMsgByteStream(ByteArrayOutputStream baos, List<MsgMetaVo> msgMetaInfo, Map metaMap) throws IOException {
         byte[] temp = new byte[0];
+        // byte, char 항목일 때에 길이에 맞추어 Null을 추가해야 하는지에 대한 Flag.
         boolean appendNullFlag = false;
 
         for (MsgMetaVo msgMetaVo : msgMetaInfo) {
@@ -272,6 +294,8 @@ public class MsgService extends CommonUtil{
                 case "u_int":
                     LOGGER.debug(metaMap.get(msgMetaVo.getFieldName()).toString());
 
+                    // Header 정보의 FieldName이 Null이고 필수 항목이 아닐 때에
+                    // 빈 byte만 생성함.
                     if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
                         temp = new byte[colLength];
                     }
@@ -283,6 +307,8 @@ public class MsgService extends CommonUtil{
                 case "short_int":
                     LOGGER.debug(metaMap.get(msgMetaVo.getFieldName()).toString());
 
+                    // Header 정보의 FieldName이 Null이고 필수 항목이 아닐 때에
+                    // 빈 byte만 생성함.
                     if (metaMap.get(msgMetaVo.getFieldName()) == null && msgMetaVo.getColReqType().equals("O")) {
                         temp = new byte[colLength];
                     }
@@ -293,6 +319,7 @@ public class MsgService extends CommonUtil{
                     break;
                 case "byte":
                 case "char":
+                    // 항목 길이가 0이면 가변 길이임.
                     if (colLength == 0) {
                         // 가변 길이 처리
                         if ( metaMap.get(msgMetaVo.getFieldName()) != null ) {
@@ -300,6 +327,7 @@ public class MsgService extends CommonUtil{
                         }
                     }
 
+                    // 해당 항목의 값이 없을 때
                     if (metaMap.get(msgMetaVo.getFieldName()) == null) {
                         LOGGER.debug("NULL (" + msgMetaVo.getFieldName() + ")");
 
@@ -311,6 +339,7 @@ public class MsgService extends CommonUtil{
                             appendNullFlag = true;
                         }
                     }
+                    // 해당 항목의 값이 있을 때
                     else {
                         fieldValue = metaMap.get(msgMetaVo.getFieldName()).toString();
                         temp = metaMap.get(msgMetaVo.getFieldName()).toString().getBytes();
@@ -324,8 +353,10 @@ public class MsgService extends CommonUtil{
                     break;
             }
 
+            // stream에 write.
             baos.write(temp);
 
+            // appendNullFlag가 true 일 때에는 stream 뒷부분에 빈 byte를 필요 길이만큼 write 해준다.
             if (appendNullFlag) {
                 baos.write(new byte[colLength - fieldValue.getBytes().length]);
                 appendNullFlag = false;
@@ -342,6 +373,7 @@ public class MsgService extends CommonUtil{
         }
     }
 
+    // 주차장 배열 정보 추가 시 사용.
     private static void appendTcpLaneInfoList(int msgId, ByteArrayOutputStream baos, Map bodyMap) {
         MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(msgId, 11);
         List<MsgMetaVo> arrayMetaInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
@@ -368,16 +400,17 @@ public class MsgService extends CommonUtil{
                 tcpLaneInfoMap.put("slotId", tcpLaneInfoVo.getSlotId());
                 tcpLaneInfoMap.put("carStatus", tcpLaneInfoVo.getCarStatus());
 
-//                tcpLaneInfoMap.put("carNo", tcpLaneInfoVo.getCarNo());
+                // 임시값
                 tcpLaneInfoMap.put("carNo", "0");
 
                 tcpLaneInfoMap.put("carInDate", tcpLaneInfoVo.getCarInDate());
 
                 LOGGER.debug("@@@@@ Append One to List @@@@@");
+
+                // 1개의 TcpLaneInfoVo를 stream에 기록함.
                 makeMsgByteStream(baos, arrayMetaInfo, tcpLaneInfoMap);
 
                 LOGGER.debug("@@@@@ End of List @@@@@");
-//                LOGGER.debug(tcpLaneInfoMap.toString());
             }
         }
         catch(Exception e){
@@ -385,10 +418,12 @@ public class MsgService extends CommonUtil{
         }
     }
 
+    // 차량 위치 정보 수신 시의 작업.
     private int processVehicleTraceInfo(Map headerMap, Map bodyMap) {
         int result = 0;
 
         try {
+            // Vo에 값 지정.
             VehicleTraceInfoVo vo = new VehicleTraceInfoVo();
 
             vo.setServiceId(headerMap.get("ServiceId").toString());
@@ -407,6 +442,7 @@ public class MsgService extends CommonUtil{
             vo.setObjStatic(bodyMap.get("objStatic").toString());
             vo.setObjDynamic(bodyMap.get("objDynamic").toString());
 
+            // DB에 insert/update.
             MsgDao.insertVehicleTraceInfo(vo);
         }
         catch(Exception e){
@@ -417,10 +453,12 @@ public class MsgService extends CommonUtil{
         return result;
     }
 
+    // 차량 상태 정보 수신 시의 작업.
     private int processVehicleStatusInfo(Map headerMap, Map bodyMap) {
         int result = 0;
 
         try {
+            // Vo에 값 지정.
             VehicleStatusInfoVo vo = new VehicleStatusInfoVo();
 
             vo.setServiceId(headerMap.get("ServiceId").toString());
@@ -439,12 +477,11 @@ public class MsgService extends CommonUtil{
             vo.setSteering(bodyMap.get("steering").toString());
             vo.setControl(bodyMap.get("control").toString());
 
-//            vo.setSteering(bodyMap.get("").toString());
-//            vo.setControl(bodyMap.get("").toString());
-//            vo.setUseType(bodyMap.get("").toString());
-//            vo.setInOut(bodyMap.get("").toString());
+            vo.setRouteData((byte[]) bodyMap.get("routeData"));
 
+            // DB에 insert/update.
             MsgDao.insertVehicleStatusInfo(vo);
+            MsgDao.updateRouteData(vo);
         }
         catch(Exception e){
             e.printStackTrace();

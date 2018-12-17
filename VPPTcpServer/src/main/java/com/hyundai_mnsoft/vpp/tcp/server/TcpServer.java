@@ -14,9 +14,11 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// ### TCP Server 메인.
 public class TcpServer {
     private static Logger LOGGER = Logger.getLogger(TcpServer.class);
 
+    // 메시지 수신 처리의 threadPool의 count.
     private static final int THREAD_COUNT = 10;
     private static ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
     public static Properties props = new Properties();
@@ -75,6 +77,7 @@ public class TcpServer {
         }
     }
 
+    // HTTP Server와 RMI 연동.
     private static void initRmi() {
         try {
             TcpServerInterface serverIf = new TcpServerImpl();
@@ -93,6 +96,7 @@ public class TcpServer {
     }
 }
 
+// 메시지 수신 ConnectionWrap
 class ConnectionWrap implements Runnable {
     private static Logger LOGGER = Logger.getLogger(ConnectionWrap.class);
 
@@ -106,10 +110,8 @@ class ConnectionWrap implements Runnable {
 
     public void run() {
         try{
+            // 메시지 수신시의 작업.
             msgService.processMsg(socket);
-
-
-//            socket.close();
         }
         catch(Exception e){
             e.printStackTrace();

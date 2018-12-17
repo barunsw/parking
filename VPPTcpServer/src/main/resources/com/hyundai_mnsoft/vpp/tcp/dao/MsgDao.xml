@@ -64,7 +64,7 @@
 				   updateDate = NOW()
 	</insert>
 
-	<insert id="insertVehicleStatusInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo">
+	<insert id="insertVehicleStatusInfo" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleStatusInfoVo">
 		INSERT INTO tbl_vehiclestatusinfo (
 				ServiceId,
 				Version,
@@ -110,4 +110,14 @@
 			control = #{control},
 			updateDate = NOW()
 	</insert>
+
+	<update id="updateRouteData" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleStatusInfoVo">
+		UPDATE tbl_vehiclestatusinfo
+		SET routeLine = #{routeData}
+		WHERE ServiceId = #{ServiceId}
+		  AND Version = #{Version}
+		  AND VIN = #{VIN}
+		  AND NadId = #{NadId}
+		  AND MoId = #{MoId}
+	</update>
 </mapper>

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 메시지 Meta 정보를 검색하는 Vo
 public class MsgMetaSearchVo implements Serializable {
     private int msgId;
     private int msgType;

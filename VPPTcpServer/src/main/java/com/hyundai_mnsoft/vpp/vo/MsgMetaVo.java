@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 메시지 Meta 정보 Vo.
 public class MsgMetaVo implements Serializable {
     private int msgId;
     private String fieldName;

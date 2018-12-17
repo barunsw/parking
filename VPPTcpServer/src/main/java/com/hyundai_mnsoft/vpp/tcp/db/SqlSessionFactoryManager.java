@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import java.io.Reader;
 
-
+// ### Mybatis SqlSessionFactoryManager
 public class SqlSessionFactoryManager {
 	private static Logger LOGGER = Logger.getLogger(SqlSessionFactoryManager.class);
 	private static final SqlSessionFactory sqlMapper;

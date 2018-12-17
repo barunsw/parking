@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 원격 작업 요청시의 정보 Vo.
 public class RemoteControlReqInfoVo implements Serializable {
     private String remoteCtl;
     private String Reserved;

@@ -11,6 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
+// ### TcpServerInterface 구현.
 public class TcpServerImpl extends UnicastRemoteObject implements TcpServerInterface {
     private static Logger LOGGER = Logger.getLogger(TcpServerImpl.class);
 
@@ -23,8 +24,9 @@ public class TcpServerImpl extends UnicastRemoteObject implements TcpServerInter
     public TcpServerImpl() throws RemoteException {
     }
 
+    // 메시지 발송 시 호출.
     @Override
-    public int sendVpp002Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
+    public int sendVpp202Msg(RequestVo requestVo, RemoteControlReqInfoVo remoteControlReqInfoVo) throws RemoteException {
         int result = Integer.parseInt(sendMsg(requestVo, remoteControlReqInfoVo, VPP_202).getErrCode());
         return result;
     }
@@ -46,6 +48,7 @@ public class TcpServerImpl extends UnicastRemoteObject implements TcpServerInter
         return msgSender.sendMsgViaRMI(msgId, headerMap, bodyMap);
     }
 
+    // TCP 에서 수신한 Header 정보를 담은 Map 생성.
     private Map makeHeaderMap(int msgId, RequestVo requestVo) {
         Map headerMap = new HashMap();
         headerMap.put("MsgId", msgId);
@@ -71,6 +74,7 @@ public class TcpServerImpl extends UnicastRemoteObject implements TcpServerInter
         return headerMap;
     }
 
+    // TCP 에서 수신한 Body 정보를 담은 Map 생성.
     private Map makeBodyMap(RemoteControlReqInfoVo remoteControlReqInfoVo) {
         Map bodyMap = new HashMap();
         bodyMap.put("remoteCtl", remoteControlReqInfoVo.getRemoteCtl());
