@@ -4,11 +4,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 차량 원격 작업의 응답 Vo.
 public class TcpRemoteControlResInfoVo implements Serializable {
     private String errCode;
 
     private String respTime;
-    private String routeData;
+    private byte[] routeData;
 
     public String getErrCode() {
         return errCode;
@@ -26,11 +27,11 @@ public class TcpRemoteControlResInfoVo implements Serializable {
         this.respTime = respTime;
     }
 
-    public String getRouteData() {
+    public byte[] getRouteData() {
         return routeData;
     }
 
-    public void setRouteData(String routeData) {
+    public void setRouteData(byte[] routeData) {
         this.routeData = routeData;
     }
 

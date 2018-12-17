@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 import java.util.List;
 
+// ### TCP Server에서 주차장 정보 요청 시의 응답 vo.
 public class TcpParkingLotResVo implements Serializable {
     private String parkingLotNo;
     private int parkingLotNmLen;

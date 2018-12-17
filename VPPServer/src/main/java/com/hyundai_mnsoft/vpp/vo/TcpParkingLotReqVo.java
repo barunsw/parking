@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### TCP Server 에서 주차장 정보를 요청하는 vo.
 public class TcpParkingLotReqVo implements Serializable {
     private String reqTime;
     private String lon;

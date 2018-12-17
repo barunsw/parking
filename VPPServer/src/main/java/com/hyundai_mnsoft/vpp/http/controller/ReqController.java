@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+// ### HTTP Request를 처리하는 메인 Controller.
 @Controller
 @RequestMapping("/")
 public class ReqController {
@@ -25,11 +26,14 @@ public class ReqController {
         this.reqService = reqService;
     }
 
+    // 주차장 정보 요청
     @RequestMapping(value = "/vpp101", method = RequestMethod.POST)
     public @ResponseBody
     ParkingLotResVo vpp101(@RequestHeader HttpHeaders headers,
                                 @RequestBody(required = false) ParkingLotReqVo requestBody,
                                 HttpServletResponse res) {
+        LOGGER.debug("\nVPP101\n");
+
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         ParkingLotResVo parkingLotResVo = null;
@@ -38,6 +42,7 @@ public class ReqController {
 
             LOGGER.debug(requestBody.toString());
 
+            // 주차장 정보 조회.
             parkingLotResVo = reqService.getParkingLotInfo(requestBody);
 
             LOGGER.debug(parkingLotResVo.toString());
@@ -57,11 +62,13 @@ public class ReqController {
         return parkingLotResVo;
     }
 
-    //원격시동
+    // 원격시동
     @RequestMapping(value = "/vpp102", method = RequestMethod.POST)
     public @ResponseBody void vpp102(@RequestHeader HttpHeaders headers,
     @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
     HttpServletResponse res) {
+        LOGGER.debug("\nVPP102\n");
+
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         try {
@@ -69,9 +76,9 @@ public class ReqController {
 
             LOGGER.debug(requestBody.toString());
 
-            // 메시지 전송 후 결과값(errCode) 받아옴
-            // ...
-            int result = RmiControl.sendVpp002Msg(requestVo, requestBody);
+            // 메시지 전송 후 결과값(errCode) 받아옴.
+            // RMI 통해 TCP Server 호출, 메시지 발송.
+            int result = RmiControl.sendVpp202Msg(requestVo, requestBody);
 
             LOGGER.debug(String.valueOf(result));
             
@@ -98,8 +105,9 @@ public class ReqController {
     // 차량상태 요청
     @RequestMapping(value = "/vpp103", method = RequestMethod.POST)
     public @ResponseBody VehicleStatusInfoVo vpp103(@RequestHeader HttpHeaders headers,
-//                                     @RequestBody(required = false) Object requestBody,
                                      HttpServletResponse res) {
+        LOGGER.debug("\nVPP103\n");
+
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         VehicleStatusInfoVo vehicleStatusInfoVo = null;
@@ -108,6 +116,8 @@ public class ReqController {
 
             // DB 조회
             vehicleStatusInfoVo = reqService.getVehicleStatusInfo(requestVo);
+
+            LOGGER.debug(vehicleStatusInfoVo.toString());
 
             res.setHeader("errCode", "0");
             res.setHeader("errDesc", "Success");
@@ -130,6 +140,8 @@ public class ReqController {
     RemoteControlResInfoVo vpp104(@RequestHeader HttpHeaders headers,
                                      @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
                                      HttpServletResponse res) {
+        LOGGER.debug("\nVPP104\n");
+
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = null;
@@ -139,7 +151,8 @@ public class ReqController {
 
             LOGGER.debug(requestBody.toString());
 
-            // 메시지 전송 후 결과값 받아옴
+            // 메시지 전송 후 결과값(vo) 받아옴.
+            // RMI 통해 TCP Server 호출, 메시지 발송.
             tcpRemoteControlResInfoVo = RmiControl.sendVpp004Msg(requestVo, requestBody);
 
             LOGGER.debug(tcpRemoteControlResInfoVo.toString());
@@ -178,6 +191,7 @@ public class ReqController {
     RemoteControlResInfoVo vpp105(@RequestHeader HttpHeaders headers,
                                      @RequestBody(required = false) RemoteControlReqInfoVo requestBody,
                                      HttpServletResponse res) {
+        LOGGER.debug("\nVPP105\n");
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo = null;
@@ -187,7 +201,8 @@ public class ReqController {
 
             LOGGER.debug(requestBody.toString());
 
-            // 메시지 전송 후 결과값 받아옴
+            // 메시지 전송 후 결과값(vo) 받아옴.
+            // RMI 통해 TCP Server 호출, 메시지 발송.
             tcpRemoteControlResInfoVo = RmiControl.sendVpp005Msg(requestVo, requestBody);
             LOGGER.debug(tcpRemoteControlResInfoVo.toString());
 
@@ -220,8 +235,8 @@ public class ReqController {
     // 차량 위치 조회
     @RequestMapping(value = "/vpp106", method = RequestMethod.POST)
     public @ResponseBody VehicleTraceInfoVo vpp106(@RequestHeader HttpHeaders headers,
-//                                                       @RequestBody(required = false) Object requestBody,
                                                        HttpServletResponse res) {
+        LOGGER.debug("\nVPP106\n");
         LOGGER.debug(headers.toString());
         RequestVo requestVo = null;
         VehicleTraceInfoVo vehicleTraceInfoVo = null;
@@ -230,6 +245,8 @@ public class ReqController {
 
             // DB 조회
             vehicleTraceInfoVo = reqService.getVehicleTraceInfo(requestVo);
+
+            LOGGER.debug(vehicleTraceInfoVo.toString());
 
             res.setHeader("errCode", "0");
             res.setHeader("errDesc", "Success");
@@ -261,7 +278,7 @@ public class ReqController {
                 LOGGER.debug(requestBody.toString());
             }
             catch(Exception e){
-//                e.printStackTrace();
+
             }
 
             codeMasterInfoVoList = reqService.getCodeMasterInfo(requestBody);

@@ -4,13 +4,18 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+// ### 원격 작업의 응답 vo.
 public class RemoteControlResInfoVo implements Serializable {
     private String respTime;
     private String routeData;
 
+    // TcpRemoteControlResInfoVo에서 errCode를 제외한 vo를 만들기 위한 생성자.
     public RemoteControlResInfoVo(TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo) {
         this.respTime = tcpRemoteControlResInfoVo.getRespTime();
-        this.routeData = tcpRemoteControlResInfoVo.getRouteData();
+        // routeData를 String 형태로 변환.
+        this.routeData = new String(tcpRemoteControlResInfoVo.getRouteData(), UTF_8);
     }
 
     public String getRespTime() {

@@ -17,8 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-
-
+// ### 관제서버 연동에 활용되는 Util
 public class ControlServerUtil {
     private static Logger LOGGER = Logger.getLogger(ControlServerUtil.class);
 
@@ -29,22 +28,22 @@ public class ControlServerUtil {
     private String dev_ny_port;
     private String dev_ss_port;
 
+    // 생성 시 properties 파일에서 관제서버 연동 정보 읽어옴.
     ControlServerUtil() {
         Resource resource = new ClassPathResource("/config.properties");
         try {
             props = PropertiesLoaderUtils.loadProperties(resource);
             dev_ip = props.getProperty("controlServer.dev.ip");
+            // * 의왕
             dev_ui_port = props.getProperty("controlServer.dev.ui.port");
+            // * 남양
             dev_ny_port = props.getProperty("controlServer.dev.ny.port");
+            // * 서산
             dev_ss_port = props.getProperty("controlServer.dev.ss.port");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-//    public String getResFromControlServer(String path) {
-//        return getResString(path, "{}");
-//    }
 
     String getResFromControlServer(String parkingAreaID, String path, String param) {
         if (param == null) {
@@ -60,6 +59,7 @@ public class ControlServerUtil {
             client = new DefaultHttpClient();
 
             String port;
+            // parkingAreaID에 따라 접속 서버 포트 설정.
             switch (parkingAreaID) {
                 case "01":
                     port = dev_ny_port;
@@ -72,8 +72,6 @@ public class ControlServerUtil {
                     break;
                 default:
                     throw new Exception("parkingAreaID가 정의되지 않았습니다.");
-//                    port = "";
-                    //에러로 빠질것.
             }
 
             String url = "http://" + dev_ip + ":" + port + path;
@@ -82,6 +80,7 @@ public class ControlServerUtil {
 
             HttpPost post = new HttpPost(url);
 
+            // 관제서버 접속 Timeout 1초로 설정.
             RequestConfig requestConfig = RequestConfig.custom()
                     .setSocketTimeout(1*1000)
                     .setConnectTimeout(1*1000)

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### HTTP Request 의 헤더 정보 vo.
 public class RequestVo implements Serializable {
     private String ServiceId;
     private String Version;

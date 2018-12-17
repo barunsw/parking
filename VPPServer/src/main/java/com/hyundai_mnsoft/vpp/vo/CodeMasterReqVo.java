@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 관제센터 CodeMaster 요청 vo.
 public class CodeMasterReqVo implements Serializable {
     private String parkingAreaID;
 

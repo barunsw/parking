@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### HTTP Server에서 차량 위치 정보 요청시의 응답 vo.
 public class VehicleTraceInfoVo implements Serializable {
     private String ServiceId;
     private String Version;

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// TCP Server에서 사용하는 주차장 정보 vo.
 public class TcpLaneInfoVo implements Serializable {
     private String laneCode;
     private String parkingLotNo;

@@ -50,29 +50,26 @@
 		SELECT
 			ServiceId,
 			Version,
-		    VIN,
-		    NadId,
-		    drivingStatus,
-		    doorOpen,
-		    engineStatus,
-		    transmission,
-		    velocity,
-		    steering,
-		    control,
-		    routeLine,
-		    useType,
-		    `inOut`,
-		    updateDate,
-		    insertDate
+			VIN,
+			NadId,
+			MoId,
+			drivingStatus,
+			doorOpen,
+			engineStatus,
+			transmission,
+			velocity,
+			steering,
+			control,
+			routeLine,
+			useType,
+			`inOut`,
+			updateDate,
+			insertDate
 		FROM
 			tbl_vehiclestatusinfo
-		WHERE
-			ServiceId = #{ServiceId}
-
-		<!--  AND Version = #{Version}
-          AND VIN = #{VIN}
-          AND NadId = #{NadId}
--->
+		ORDER BY
+			updateDate DESC
+		LIMIT 1
 	</select>
 
 	<select id="getVehicleTraceInfo" resultType="com.hyundai_mnsoft.vpp.vo.VehicleTraceInfoVo"
@@ -82,6 +79,7 @@
 			Version,
 			VIN,
 			NadId,
+		    MoId,
 			gatherStartDate,
 			gatherStartTime,
 			lon,
@@ -93,12 +91,8 @@
 			insertDate
 		FROM
 			tbl_vehicletraceinfo
-		WHERE
-			ServiceId = #{ServiceId}
-
-		<!--  AND Version = #{Version}
-          AND VIN = #{VIN}
-          AND NadId = #{NadId}
--->
+		ORDER BY
+			updateDate DESC
+		LIMIT 1
 	</select>
 </mapper>

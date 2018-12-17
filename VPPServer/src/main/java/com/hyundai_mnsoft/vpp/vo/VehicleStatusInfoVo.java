@@ -3,8 +3,8 @@ package com.hyundai_mnsoft.vpp.vo;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
-import java.sql.Blob;
 
+// ### 차량 상태 Vo.
 public class VehicleStatusInfoVo implements Serializable {
     private String ServiceId;
     private String Version;
@@ -18,7 +18,7 @@ public class VehicleStatusInfoVo implements Serializable {
     private String velocity;
     private String steering;
     private String control;
-    private Blob routeLine;
+    private byte[] routeData;
     private String useType;
     private String inOut;
     private String updateDate;
@@ -120,12 +120,12 @@ public class VehicleStatusInfoVo implements Serializable {
         this.control = control;
     }
 
-    public Blob getRouteLine() {
-        return routeLine;
+    public byte[] getRouteData() {
+        return routeData;
     }
 
-    public void setRouteLine(Blob routeLine) {
-        this.routeLine = routeLine;
+    public void setRouteData(byte[] routeData) {
+        this.routeData = routeData;
     }
 
     public String getUseType() {

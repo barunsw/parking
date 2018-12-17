@@ -4,7 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-// VPP-101 요청 시 사용
+// ### 주차장 정보 요청 vo.
 public class ParkingLotReqVo implements Serializable {
     private String parkingAreaID;
     private String reqTime;

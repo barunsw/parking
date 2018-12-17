@@ -7,17 +7,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// ### HTTP Request 처리 서비스 구현부.
 @Service
 public class ReqServiceImpl implements ReqService {
 
     private final ReqDao reqDao;
+    private final ControlServerService controlServerService;
 
     @Autowired
-    ControlServerService controlServerService;
-
-    @Autowired
-    public ReqServiceImpl(ReqDao reqDao) {
+    public ReqServiceImpl(ReqDao reqDao, ControlServerService controlServerService) {
         this.reqDao = reqDao;
+        this.controlServerService = controlServerService;
     }
 
     public ParkingLotResVo getParkingLotInfo(ParkingLotReqVo parkingLotReqVo) {
@@ -27,26 +27,7 @@ public class ReqServiceImpl implements ReqService {
         controlServerService.reloadLaneInfoStatus(parkingLotReqVo.getParkingAreaID());
         controlServerService.reloadParkingUse(parkingLotReqVo.getParkingAreaID());
 
-//        for ( LaneInfoVo laneInfoVo : laneInfoList ) {
-//            String laneCode = laneInfoVo.getLaneCode();
-//
-//            // 정보 갱신
-//            ParkingLotUseInfoVo parkingLotUseInfoVo = controlServerService.getLaneInfoStatus(laneCode);
-//
-//            laneInfoVo.setParkingLotNo(parkingLotUseInfoVo.getParkinglot_no());
-//            laneInfoVo.setParkingLevelCode(parkingLotUseInfoVo.getParking_level_code());
-//            laneInfoVo.setParkingZoneCode(parkingLotUseInfoVo.getParking_zone_code());
-//            laneInfoVo.setLaneSeqNum(parkingLotUseInfoVo.getLane_seq_num());
-//            laneInfoVo.setLaneName(parkingLotUseInfoVo.getLane_name());
-//            laneInfoVo.setLaneType(parkingLotUseInfoVo.getLane_type());
-//            laneInfoVo.setManageType(parkingLotUseInfoVo.getManage_type());
-//            laneInfoVo.setLaneStatus(parkingLotUseInfoVo.getLane_status());
-//
-//            laneInfoList.add(laneInfoVo);
-//
-//            parkingLotNo = parkingLotUseInfoVo.getParkinglot_no();
-//        }
-
+        // 결과를 vo에 담아 전달.
         ParkingLotResVo parkingLotResVo = new ParkingLotResVo();
 
         parkingLotResVo.setParkingLotNo(parkingLotReqVo.getParkingAreaID());
@@ -57,16 +38,19 @@ public class ReqServiceImpl implements ReqService {
         return parkingLotResVo;
     }
 
+    // 차량 상태 조회 (DB 조회)
     @Override
     public VehicleStatusInfoVo getVehicleStatusInfo(RequestVo requestVo) {
         return reqDao.getVehicleStatusInfo(requestVo);
     }
 
+    // 차량 위치 조회 (DB 조회)
     @Override
     public VehicleTraceInfoVo getVehicleTraceInfo(RequestVo requestVo) {
         return reqDao.getVehicleTraceInfo(requestVo);
     }
 
+    // 주차 건물 정보 (관제서버 연동)
     @Override
     public List<CodeMasterInfoVo> getCodeMasterInfo(CodeMasterReqVo codeMasterReqVo) {
         return controlServerService.getCodeMaster(codeMasterReqVo);

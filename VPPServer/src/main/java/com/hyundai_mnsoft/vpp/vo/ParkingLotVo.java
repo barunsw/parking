@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 주차장 정보 vo. (현재 미사용)
 public class ParkingLotVo implements Serializable {
     private int pl_id;
     private int rl_id;

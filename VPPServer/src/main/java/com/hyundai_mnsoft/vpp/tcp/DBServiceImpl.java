@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.rmi.RemoteException;
 
+// ### DBServiceInterface 구현부.
 public class DBServiceImpl implements DBServiceInterface {
 
     @Autowired
     private TcpRemoteService tcpRemoteService;
 
+    // 주차장 정보 요청.
     @Override
     public TcpParkingLotResVo getParkingLotInfo(TcpParkingLotReqVo parkingLotTcpReqVo) throws RemoteException {
         return tcpRemoteService.getParkingLotInfo(parkingLotTcpReqVo);

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 import java.util.List;
 
+// ### 주차장 정보 응답 vo.
 public class ParkingLotResVo implements Serializable {
     private String parkingLotNo;
     private String parkingLotNm;

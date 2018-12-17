@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+// ### 관제서버 CodeMaster 요청의 응답 vo.
 public class CodeMasterInfoVo implements Serializable {
     private String code_group;
     private String code_group_name;
