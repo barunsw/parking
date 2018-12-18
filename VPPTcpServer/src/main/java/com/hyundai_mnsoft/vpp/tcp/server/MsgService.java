@@ -140,7 +140,7 @@ public class MsgService extends CommonUtil{
 
             System.arraycopy(headerBuffer, startPos, colValue, 0, msgMetaVo.getColLength());
 
-            LOGGER.debug(byteArrayToHex(colValue));
+            LOGGER.debug(msgMetaVo.getFieldName() + "(HEX)" + " | " + byteArrayToHex(colValue));
 
             switch (msgMetaVo.getColType()) {
                 case "u_int":
@@ -177,6 +177,9 @@ public class MsgService extends CommonUtil{
                     break;
                 case "Binary":
                     dataMap.put(msgMetaVo.getFieldName(), colValue);
+
+                    LOGGER.debug(msgMetaVo.getFieldName() + "(BYTE ARRAY) \t| " + colValue);
+                    LOGGER.debug(msgMetaVo.getFieldName() + "(STRING) \t\t| " + new String(colValue, StandardCharsets.UTF_8));
 
                     break;
             }
