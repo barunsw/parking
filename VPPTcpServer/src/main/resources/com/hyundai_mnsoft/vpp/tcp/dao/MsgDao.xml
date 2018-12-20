@@ -111,13 +111,15 @@
 			updateDate = NOW()
 	</insert>
 
+	<select id="getRecentServiceId" resultType="java.lang.String">
+		SELECT ServiceId FROM tbl_vehiclestatusinfo
+		ORDER BY updateDate DESC LIMIT 1
+	</select>
+
 	<update id="updateRouteData" parameterType="com.hyundai_mnsoft.vpp.vo.VehicleStatusInfoVo">
 		UPDATE tbl_vehiclestatusinfo
 		SET routeLine = #{routeData}
-		WHERE ServiceId = #{ServiceId}
-		  AND Version = #{Version}
-		  AND VIN = #{VIN}
-		  AND NadId = #{NadId}
-		  AND MoId = #{MoId}
+		WHERE
+				ServiceId = #{ServiceId}
 	</update>
 </mapper>

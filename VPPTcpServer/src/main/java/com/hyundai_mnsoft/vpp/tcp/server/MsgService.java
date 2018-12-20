@@ -484,7 +484,18 @@ public class MsgService extends CommonUtil{
 
             // DB에 insert/update.
             MsgDao.insertVehicleStatusInfo(vo);
-            MsgDao.updateRouteData(vo);
+
+            try {
+                if ( bodyMap.get("routeData") != null ) {
+                    MsgDao.updateRouteData(vo);
+                }
+            }
+            catch(Exception e){
+//                e.printStackTrace();
+                LOGGER.debug("routeData is null");
+            }
+
+
         }
         catch(Exception e){
             e.printStackTrace();

@@ -4,11 +4,14 @@ import com.hyundai_mnsoft.vpp.tcp.dao.MsgDao;
 import com.hyundai_mnsoft.vpp.vo.MsgMetaSearchVo;
 import com.hyundai_mnsoft.vpp.vo.MsgMetaVo;
 import com.hyundai_mnsoft.vpp.vo.TcpRemoteControlResInfoVo;
+import com.hyundai_mnsoft.vpp.vo.VehicleStatusInfoVo;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -93,132 +96,155 @@ public class MsgSender extends CommonUtil {
 
         try {
             LOGGER.debug("Establishing Connection..." + vehicle_ip + "/" + vehicle_port);
-            socket = new Socket(vehicle_ip, vehicle_port);
+            SocketAddress socketAddress = new InetSocketAddress(vehicle_ip, vehicle_port);
 
-            OutputStream os = socket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-
-            InputStream is = socket.getInputStream();
-            DataInputStream dis = new DataInputStream(is);
-
-            LOGGER.debug("msg flush.");
-            dos.write(msg);
-            dos.flush();
-
-            LOGGER.debug(msg.length);
-
-            // 응답 메시지 Meta 정보
-            MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 1);
-            List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
-
-            int headerLength = 0;
-            for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
-                headerLength += msgMetaVo.getColLength();
-            }
-
-            // Response의 Header
-            byte[] headerBuffer = new byte[headerLength];
-
-            dis.read(headerBuffer);
-
-            int startPos = 0;
-            int destPos = 0;
-
-            Map headerMap = new HashMap();
-            Map bodyMap = new HashMap();
-            int bodyLen = 0;
-
-            LOGGER.debug("\n>>> Receive Response Msg");
-
-            for ( MsgMetaVo msgMetaVo : msgHeaderInfo ) {
-                byte[] colValue = new byte[msgMetaVo.getColLength()];
-
-                System.arraycopy(headerBuffer, startPos, colValue, destPos, msgMetaVo.getColLength());
-
-                switch (msgMetaVo.getColType()) {
-                    case "u_int":
-                        BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
-                        LOGGER.info(msgMetaVo.getFieldName() + " | " + k);
-                        headerMap.put(msgMetaVo.getFieldName(), k);
-
-                        if (msgMetaVo.getFieldName().equals("BodyLen")) {
-                            bodyLen = k.intValue();
-                        }
-
-                        break;
-                    case "short_int":
-                        int s = byteArrayToShort(colValue);
-                        LOGGER.info(msgMetaVo.getFieldName() + " | " + s);
-                        headerMap.put(msgMetaVo.getFieldName(), s);
-                        break;
-                    case "byte":
-                    case "char":
-                        String str = new String(colValue, StandardCharsets.UTF_8).trim();
-                        LOGGER.info(msgMetaVo.getFieldName() + " | " + str);
-                        headerMap.put(msgMetaVo.getFieldName(), str);
-                        break;
-                }
-
-                startPos += msgMetaVo.getColLength();
-            }
-
-            // Body 부분이 존재할 경우 데이터 읽어옴.
-            if ( bodyLen > 0 ) {
-                byte[] bodyBuffer = new byte[bodyLen];
-                int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
-
-                dis.read(bodyBuffer);
-
-                msgMetaSearchVo = new MsgMetaSearchVo(msgId, 1);
-                List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
-
-                startPos = 0;
-
-                MsgService.getMsgData(bodyMap, bodyBuffer, msgBodyInfo, startPos);
-            }
-
-            LOGGER.debug("End of Parse.");
-            LOGGER.debug("\nResponse Msg Ends.");
-
-            os.close();
-            dos.close();
-            is.close();
-            dis.close();
-
-            LOGGER.debug(headerMap.toString());
-            LOGGER.debug(bodyMap.toString());
-
-            tcpRemoteControlResInfoVo.setErrCode(headerMap.get("ErrCode").toString());
-
-            try {
-                if ( bodyMap.get("respTime") != null ) {
-                    tcpRemoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
-                }
-            }
-            catch(Exception ignored){
-            }
-
-            try {
-                if ( bodyMap.get("routeData") != null ) {
-                    byte[] routeData_byteArr = (byte[]) bodyMap.get("routeData");
-                    tcpRemoteControlResInfoVo.setRouteData(routeData_byteArr);
-                }
-            }
-            catch(Exception ignored){
-            }
-
-        } catch (Exception e) {
+            socket = new Socket();
+            socket.setSoTimeout(5000);
+            socket.connect(socketAddress, 3000);
+        }
+        catch (Exception e) {
             e.printStackTrace();
-
+            LOGGER.debug("!!! Connection Failed !!!");
             tcpRemoteControlResInfoVo.setErrCode("1");
         }
-        finally {
+
+        if ( socket != null ) {
             try {
-                if (socket != null) {
-                    socket.close();
+                OutputStream os = socket.getOutputStream();
+                DataOutputStream dos = new DataOutputStream(os);
+
+                InputStream is = socket.getInputStream();
+                DataInputStream dis = new DataInputStream(is);
+
+                LOGGER.debug("msg flush.");
+                dos.write(msg);
+                dos.flush();
+
+                LOGGER.debug(msg.length);
+
+                // 응답 메시지 Meta 정보
+                MsgMetaSearchVo msgMetaSearchVo = new MsgMetaSearchVo(0, 1);
+                List<MsgMetaVo> msgHeaderInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
+
+                int headerLength = 0;
+                for (MsgMetaVo msgMetaVo : msgHeaderInfo) {
+                    headerLength += msgMetaVo.getColLength();
                 }
+
+                // Response의 Header
+                byte[] headerBuffer = new byte[headerLength];
+
+                dis.read(headerBuffer);
+
+                int startPos = 0;
+                int destPos = 0;
+
+                Map headerMap = new HashMap();
+                Map bodyMap = new HashMap();
+                int bodyLen = 0;
+
+                LOGGER.debug("\n>>> Receive Response Msg");
+
+                for (MsgMetaVo msgMetaVo : msgHeaderInfo) {
+                    byte[] colValue = new byte[msgMetaVo.getColLength()];
+
+                    System.arraycopy(headerBuffer, startPos, colValue, destPos, msgMetaVo.getColLength());
+
+                    switch (msgMetaVo.getColType()) {
+                        case "u_int":
+                            BigInteger k = new BigInteger(byteArrayToHex(colValue), 16);
+                            LOGGER.info(msgMetaVo.getFieldName() + " | " + k);
+                            headerMap.put(msgMetaVo.getFieldName(), k);
+
+                            if (msgMetaVo.getFieldName().equals("BodyLen")) {
+                                bodyLen = k.intValue();
+                            }
+
+                            break;
+                        case "short_int":
+                            int s = byteArrayToShort(colValue);
+                            LOGGER.info(msgMetaVo.getFieldName() + " | " + s);
+                            headerMap.put(msgMetaVo.getFieldName(), s);
+                            break;
+                        case "byte":
+                        case "char":
+                            String str = new String(colValue, StandardCharsets.UTF_8).trim();
+                            LOGGER.info(msgMetaVo.getFieldName() + " | " + str);
+                            headerMap.put(msgMetaVo.getFieldName(), str);
+                            break;
+                    }
+
+                    startPos += msgMetaVo.getColLength();
+                }
+
+                // Body 부분이 존재할 경우 데이터 읽어옴.
+                if (bodyLen > 0) {
+                    byte[] bodyBuffer = new byte[bodyLen];
+                    int msgId = Integer.parseInt(headerMap.get("MsgId").toString());
+
+                    dis.read(bodyBuffer);
+
+                    msgMetaSearchVo = new MsgMetaSearchVo(msgId, 1);
+                    List<MsgMetaVo> msgBodyInfo = MsgDao.getMsgMetaInfo(msgMetaSearchVo);
+
+                    startPos = 0;
+
+                    MsgService.getMsgData(bodyMap, bodyBuffer, msgBodyInfo, startPos);
+                }
+
+                LOGGER.debug("End of Parse.");
+                LOGGER.debug("\n>>> Response Msg Ends.");
+
+                os.close();
+                dos.close();
+                is.close();
+                dis.close();
+
+                LOGGER.debug(headerMap.toString());
+                LOGGER.debug(bodyMap.toString());
+
+                tcpRemoteControlResInfoVo.setErrCode(headerMap.get("ErrCode").toString());
+
+                try {
+                    if (bodyMap.get("respTime") != null) {
+                        tcpRemoteControlResInfoVo.setRespTime(bodyMap.get("respTime").toString());
+                    }
+                } catch (Exception ignored) {
+                }
+
+                try {
+                    if (bodyMap.get("routeData") != null) {
+                        byte[] routeData_byteArr = (byte[]) bodyMap.get("routeData");
+                        tcpRemoteControlResInfoVo.setRouteData(routeData_byteArr);
+
+                        // routeData DB에 업데이트.
+                        try {
+                            VehicleStatusInfoVo vehicleStatusInfoVo = new VehicleStatusInfoVo();
+                            // 가장 최근에 update된 ServiceId를 가져옴.
+                            vehicleStatusInfoVo.setServiceId(MsgDao.getRecentServiceId());
+                            vehicleStatusInfoVo.setRouteData(routeData_byteArr);
+
+                            MsgDao.updateRouteData(vehicleStatusInfoVo);
+                        }
+                        catch(Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+
             } catch (Exception e) {
-                LOGGER.debug("Socket == null !");
+                e.printStackTrace();
+
+                tcpRemoteControlResInfoVo.setErrCode("1");
+            } finally {
+                try {
+                    if (socket != null) {
+                        socket.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.debug("Socket == null !");
+                }
             }
         }
 

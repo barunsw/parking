@@ -65,6 +65,20 @@ public class MsgDao {
         }
     }
 
+    public static String getRecentServiceId() {
+        SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
+
+        String result = "";
+        try{
+            result = session.selectOne("com.hyundai_mnsoft.vpp.tcp.dao.MsgDao.getRecentServiceId");
+        }
+        finally{
+            session.close();
+        }
+
+        return result;
+    }
+
     public static void updateRouteData(VehicleStatusInfoVo vehicleStatusInfoVo) {
         SqlSession session = SqlSessionFactoryManager.getSqlSessionFactory().openSession();
 

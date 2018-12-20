@@ -20,7 +20,7 @@
 	
 	<!-- Application Loggers -->
 	<logger name="com.hyundai_mnsoft.vpp">
-		<level value="debug" />
+		<level value="DEBUG" />
 	</logger>
 
 	<logger name="java.sql.Connection">
