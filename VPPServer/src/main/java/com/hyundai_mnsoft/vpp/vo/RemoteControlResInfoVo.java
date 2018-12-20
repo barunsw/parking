@@ -14,8 +14,16 @@ public class RemoteControlResInfoVo implements Serializable {
     // TcpRemoteControlResInfoVo에서 errCode를 제외한 vo를 만들기 위한 생성자.
     public RemoteControlResInfoVo(TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo) {
         this.respTime = tcpRemoteControlResInfoVo.getRespTime();
+
         // routeData를 String 형태로 변환.
-        this.routeData = new String(tcpRemoteControlResInfoVo.getRouteData(), UTF_8);
+        try {
+            if ( tcpRemoteControlResInfoVo.getRouteData() != null ) {
+                this.routeData = new String(tcpRemoteControlResInfoVo.getRouteData(), UTF_8);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public String getRespTime() {
