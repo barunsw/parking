@@ -214,8 +214,10 @@ public class MsgSender extends CommonUtil {
 
                 try {
                     if (bodyMap.get("routeData") != null) {
-                        byte[] routeData_byteArr = (byte[]) bodyMap.get("routeData");
-                        tcpRemoteControlResInfoVo.setRouteData(routeData_byteArr);
+                        byte[] routeData_byteArr = new BigInteger(bodyMap.get("routeData").toString(), 16).toByteArray();
+
+//                        byte[] routeData_byteArr = bodyMap.get("routeData").toString().getBytes();
+                        tcpRemoteControlResInfoVo.setRouteData(bodyMap.get("routeData").toString());
 
                         // routeData DB에 업데이트.
                         try {

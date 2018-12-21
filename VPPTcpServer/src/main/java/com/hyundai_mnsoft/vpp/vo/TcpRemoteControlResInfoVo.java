@@ -9,7 +9,7 @@ public class TcpRemoteControlResInfoVo implements Serializable {
     private String errCode;
 
     private String respTime;
-    private byte[] routeData;
+    private String routeData;
 
     public String getErrCode() {
         return errCode;
@@ -27,11 +27,11 @@ public class TcpRemoteControlResInfoVo implements Serializable {
         this.respTime = respTime;
     }
 
-    public byte[] getRouteData() {
+    public String getRouteData() {
         return routeData;
     }
 
-    public void setRouteData(byte[] routeData) {
+    public void setRouteData(String routeData) {
         this.routeData = routeData;
     }
 

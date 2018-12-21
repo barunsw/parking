@@ -176,11 +176,7 @@ public class MsgService extends CommonUtil{
                     dataMap.put(msgMetaVo.getFieldName(), str.trim());
                     break;
                 case "Binary":
-                    dataMap.put(msgMetaVo.getFieldName(), colValue);
-
-                    LOGGER.debug(msgMetaVo.getFieldName() + "(BYTE ARRAY) \t| " + colValue);
-                    LOGGER.debug(msgMetaVo.getFieldName() + "(STRING) \t\t| " + new String(colValue, StandardCharsets.UTF_8));
-
+                    dataMap.put(msgMetaVo.getFieldName(), byteArrayToHex(colValue));
                     break;
             }
             startPos += msgMetaVo.getColLength();
