@@ -55,4 +55,12 @@ public class ReqServiceImpl implements ReqService {
     public List<CodeMasterInfoVo> getCodeMasterInfo(CodeMasterReqVo codeMasterReqVo) {
         return controlServerService.getCodeMaster(codeMasterReqVo);
     }
+
+    @Override
+    public void reloadParkingLotInfo(ParkingLotReqVo parkingLotReqVo) {
+        controlServerService.reloadLaneInfoStatus(parkingLotReqVo.getParkingAreaID());
+        controlServerService.reloadParkingUse(parkingLotReqVo.getParkingAreaID());
+    }
+
+
 }

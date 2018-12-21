@@ -10,4 +10,5 @@ public interface ReqService {
     VehicleStatusInfoVo getVehicleStatusInfo(RequestVo requestVo);
     VehicleTraceInfoVo getVehicleTraceInfo(RequestVo requestVo);
     List<CodeMasterInfoVo> getCodeMasterInfo(CodeMasterReqVo codeMasterReqVo);
+    void reloadParkingLotInfo(ParkingLotReqVo parkingLotReqVo);
 }

@@ -4,8 +4,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 // ### 원격 작업의 응답 vo.
 public class RemoteControlResInfoVo implements Serializable {
     private String respTime;
@@ -15,10 +13,9 @@ public class RemoteControlResInfoVo implements Serializable {
     public RemoteControlResInfoVo(TcpRemoteControlResInfoVo tcpRemoteControlResInfoVo) {
         this.respTime = tcpRemoteControlResInfoVo.getRespTime();
 
-        // routeData를 String 형태로 변환.
         try {
             if ( tcpRemoteControlResInfoVo.getRouteData() != null ) {
-                this.routeData = new String(tcpRemoteControlResInfoVo.getRouteData(), UTF_8);
+                this.routeData = tcpRemoteControlResInfoVo.getRouteData();
             }
         }
         catch(Exception e){

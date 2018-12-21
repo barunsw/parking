@@ -264,6 +264,36 @@ public class ReqController {
         return vehicleTraceInfoVo;
     }
 
+    // 주차장 정보 요청
+    @RequestMapping(value = "/vpp201", method = RequestMethod.POST)
+    public @ResponseBody
+    void vpp201(@RequestHeader HttpHeaders headers,
+                           @RequestBody(required = false) ParkingLotReqVo requestBody,
+                           HttpServletResponse res) {
+        LOGGER.debug("\nVPP201\n");
+
+        LOGGER.debug(headers.toString());
+        RequestVo requestVo = null;
+        try {
+            requestVo = processHeader(headers);
+
+            LOGGER.debug(requestBody.toString());
+
+            reqService.reloadParkingLotInfo(requestBody);
+
+            res.setHeader("errCode", "0");
+            res.setHeader("errDesc", "Success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setHeader("errCode", "1");
+            res.setHeader("errDesc", "Fail - working error.");
+        }
+        finally {
+            res.setHeader("MsgId", "VPP-201");
+            res.setHeader("NadId", requestVo.getNadId());
+        }
+    }
+
     @RequestMapping(value = "/codemaster", method = RequestMethod.POST)
     public @ResponseBody
     List<CodeMasterInfoVo> test(@RequestHeader(required = false) HttpHeaders headers,  @RequestBody(required = false) CodeMasterReqVo requestBody, HttpServletResponse res) {
